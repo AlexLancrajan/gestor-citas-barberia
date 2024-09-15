@@ -16,7 +16,7 @@ A fecha de hoy *15 de Septiembre de 2024* existen las siguientes reglas:
 
 ## ¿QUÉ TIPO DE ARQUITECTURA UTILIZA Y COMO SE ORGANIZAN LAS REGLAS?
 
-El patrón de arquitectura empleado es hexagona, ya que permite la escalabilidad del proyecto y la mejor organización del cógido. También cabe destacar que se ha hecho *slicing* para definir mejor las reglas establecidas.  
+El patrón de arquitectura empleado es hexagonal, ya que permite la escalabilidad del proyecto y la mejor organización del cógido. También cabe destacar que se ha hecho *slicing* para definir mejor las reglas establecidas.  
 
 En cuanto a la organizacion de las reglas se implementa utilizando el siguiente esquema:
 
