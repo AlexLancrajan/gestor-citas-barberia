@@ -60,54 +60,54 @@ El modelo se describe a continuación en formato *JSON*:
   5. **(GET) FindUsers**: */api/users/*. En esta ruta se buscarán a todos los usuarios.
   6. **(DELETE) DeleteUser**: */api/users/:id*. En esta ruta se borrará a un usuario.
   7. **(PUT) ModifyUser**: */api/users/:id*. En esta ruta se actualizará un usuario.
-  8. **google Sign-Up** **POR IMPLEMENTAR**.
+  8. **(POST) Google Sign-Up** **POR IMPLEMENTAR**.
 
 **Controladores**
   1. **RegisterUserFunction** asociado a *(1)* de rutas:
 
-    - Crea un usuario nuevo en la base de datos usando el sistema propio.
-    - Devuelve una instancia de error si el proceso ha ido mal *(400 o 500)*.
+  - Crea un usuario nuevo en la base de datos usando el sistema propio.
+  - Devuelve una instancia de error si el proceso ha ido mal *(400 o 500)*.
 
-  2. **loginUserFunction asociado** a *(2)* de rutas:
+  2. **LoginUserFunction asociado** a *(2)* de rutas:
 
-    - Comprueba si el usuario mandado y la contraseña son correctos con la base de datos y crea los *ACCESS TOKEN* y *REFRESH TOKEN*.
-    - Devuele una instancia de error en caso negativo *(404 0 500)*.
-    - El REFRESH TOKEN se encuentra en *res.cookie('jwt', REFRESH_TOKEN, ...)*
-    - El formato del *ACCESS TOKEN* es *{username, userId, role}*
-    - El formato del *REFRESH TOKEN* es *{username}*
-    - El tiempo de expiración del *ACCESS TOKEN* es de 20s.
-    - El tiempo de expiración del *REFRESH TOKEN* es de 1h.
+  - Comprueba si el usuario mandado y la contraseña son correctos con la base de datos y crea los *ACCESS TOKEN* y *REFRESH TOKEN*.
+  - Devuele una instancia de error en caso negativo *(404 0 500)*.
+  - El REFRESH TOKEN se encuentra en *res.cookie('jwt', REFRESH_TOKEN, ...)*
+  - El formato del *ACCESS TOKEN* es *{username, userId, role}*
+  - El formato del *REFRESH TOKEN* es *{username}*
+  - El tiempo de expiración del *ACCESS TOKEN* es de 20s.
+  - El tiempo de expiración del *REFRESH TOKEN* es de 1h.
 
-  3. **refreshTokenFunction** asociado a *(3)* de rutas: 
+  3. **RefreshTokenFunction** asociado a *(3)* de rutas: 
 
-    - Comprueba el token refresh de *req.cookies* para generar un nuevo *ACCESS TOKEN*.
-    - Devuelve una instancia de error en caso negativo *401*.
+  - Comprueba el token refresh de *req.cookies* para generar un nuevo *ACCESS TOKEN*.
+  - Devuelve una instancia de error en caso negativo *401*.
 
-  4. **findUserFunction** asociado a *(4)* de rutas:
+  4. **FindUserFunction** asociado a *(4)* de rutas:
 
-    - Devuelve un usuario buscando por *id*.
-    - En caso negativo devuele una instancia de error *(404 o 500)*.
+  - Devuelve un usuario buscando por *id*.
+  - En caso negativo devuele una instancia de error *(404 o 500)*.
 
-  5. **findAllUsersFunction** asociado a *(5)* de rutas:
+  5. **FindAllUsersFunction** asociado a *(5)* de rutas:
 
-    - Devuelve todos los usuarios de la base de datos.
-    - Solo se puede acceder mediante el *rol*de *admin*.
-    - En caso negativo devuelve una instancia de error *(401, 404 o 500)*.
+  - Devuelve todos los usuarios de la base de datos.
+  - Solo se puede acceder mediante el *rol*de *admin*.
+  - En caso negativo devuelve una instancia de error *(401, 404 o 500)*.
 
-  6. **deleteUserFunction** asociado a *(6)* de rutas:
+  6. **DeleteUserFunction** asociado a *(6)* de rutas:
 
-    - Elimina el usuario con el *id* especificado y devuelve *1 o 0*, dependiendo de si ha borrado el usuario o no.
-    - En caso de que no haya eliminado usuario devuelve un error indicando que ya se ha borrado el usuario con código *204*.
-    - La otra instancia de error devuelve *500*.
+  - Elimina el usuario con el *id* especificado y devuelve *1 o 0*, dependiendo de si ha borrado el usuario o no.
+  - En caso de que no haya eliminado usuario devuelve un error indicando que ya se ha borrado el usuario con código *204*.
+  - La otra instancia de error devuelve *500*.
 
-  7. **modifyUserFunction** asociado a *(7)* de rutas:
+  7. **ModifyUserFunction** asociado a *(7)* de rutas:
 
-    - Modifica el usuario con los *campos del modelo* proporcionados (salvo *id*) al usuario mediante el *id* especificado.
-    - Estos datos pueden ser **opcionales**.
-    - En caso de **no modificar** algún dato se mantiene el **original**.
-    - Devuelve instancia de error en caso negativo *(400 o 500)*. 
-    
-  8. **googleSignUpFunction** **POR IMPLEMENTAR**
+  - Modifica el usuario con los *campos del modelo* proporcionados (salvo *id*) al usuario mediante el *id* especificado.
+  - Estos datos pueden ser **opcionales**.
+  - En caso de **no modificar** algún dato se mantiene el **original**.
+  - Devuelve instancia de error en caso negativo *(400 o 500)*. 
+
+  8. **GoogleSignUpFunction** **POR IMPLEMENTAR**
 
 
 
