@@ -91,7 +91,7 @@ El modelo se describe a continuación en formato *JSON*:
   5. **FindAllUsersFunction** asociado a *(5)* de rutas:
 
   - Devuelve todos los usuarios de la base de datos.
-  - Solo se puede acceder mediante el *rol*de *admin*.
+  - Solo se puede acceder mediante el *rol* de *admin*.
   - En caso negativo devuelve una instancia de error *(401, 404 o 500)*.
 
   6. **DeleteUserFunction** asociado a *(6)* de rutas:
