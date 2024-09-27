@@ -120,24 +120,6 @@ export class UserController {
     return;
   }
 
-  // async googleSignUpFunction(req: Request, res: Response) {
-  //   const client = new OAuth2Client();
-  //   const token = req.body['id_token'];
-  //   async function verify() {
-  //     const ticket = await client.verifyIdToken({
-  //       idToken: token,
-  //       audience: CLIENT_ID,
-  //     });
-  //     const payload = ticket.getPayload();
-  //     if (!payload) {
-  //       throw new Error('No valid payload found.');
-  //     }
-  //     const userId = payload['sub'];
-  //   }
-
-  //   verify().catch(console.error);
-  // }
-
   async findUserFunction(req: Request, res: Response) {
     const id = req.params.id;
     const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
@@ -245,4 +227,22 @@ export class UserController {
     }
 
   }
+
+  // async googleSignUpFunction(req: Request, res: Response) {
+  //   const client = new OAuth2Client();
+  //   const token = req.body['id_token'];
+  //   async function verify() {
+  //     const ticket = await client.verifyIdToken({
+  //       idToken: token,
+  //       audience: CLIENT_ID,
+  //     });
+  //     const payload = ticket.getPayload();
+  //     if (!payload) {
+  //       throw new Error('No valid payload found.');
+  //     }
+  //     const userId = payload['sub'];
+  //   }
+
+  //   verify().catch(console.error);
+  // }
 }
