@@ -27,6 +27,7 @@ En cuanto a la organizacion de las reglas se implementa utilizando el siguiente 
 ### User (Falta test para verificar funcionamiento):
 
 En este apartado se describirá el modelo, las rutas y controladores asociados a User:
+
 **Modelo**
 El modelo se describe a continuación en formato *JSON*:
 
