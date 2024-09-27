@@ -20,6 +20,7 @@ export class FindUser {
     return user;
   }
 
+
   async runFindUsers() {
     const users = await this.userRepository.getAllUsers();
 

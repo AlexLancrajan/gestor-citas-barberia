@@ -8,7 +8,7 @@ export class DeleteUser {
   async run(userId: string) {
     const deletedUser = await this.userRepository.deleteUser(userId);
 
-    if (!deletedUser) return 'User already deleted.';
+    if (deletedUser === 0) return 'User already deleted.';
 
     return deletedUser;
   }

@@ -1,4 +1,4 @@
-export interface userFieldsNoId {
+export interface UserFieldsNoId {
   username: string,
   passwordHash: string,
   email: string,
@@ -8,9 +8,7 @@ export interface userFieldsNoId {
   role: 'admin' | 'barber' | 'user'
 }
 
-export type userNoHash = Omit<User, 'passwordHash'>;
-
-export interface userFields extends userFieldsNoId {
+export interface UserFields extends UserFieldsNoId {
   userId: string
 }
 
@@ -20,10 +18,16 @@ export interface UserForToken {
   role: 'admin' | 'barber' | 'user'
 }
 
+export type UserNoHashField = Omit<UserFields, 'passwordHash'>;
+
+export class UserNoHash {
+  constructor(readonly userNoHashFields: UserNoHashField) { }
+}
+
 export class User {
-  constructor(readonly userFields: userFields) { }
+  constructor(readonly userFields: UserFields) { }
 }
 
 export class UserNoId {
-  constructor(readonly userFieldsNoId: userFieldsNoId) { }
+  constructor(readonly userFieldsNoId: UserFieldsNoId) { }
 }

@@ -1,14 +1,16 @@
 import { DeleteUser } from "../application/delete-user";
 import { FindUser } from "../application/find-user";
 import { RegisterUser } from "../application/register-user";
-import { userFieldsNoId, UserNoId, UserForToken } from "../domain/user";
+import { UserFieldsNoId, UserNoId, UserForToken } from "../domain/user";
 import { UserRegistrationSchema, UserLoginSchema, UserModificationSchema } from "./user-schema";
 import options from "../../config";
+import { ModifyUser } from "../application/modify-user";
 
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ModifyUser } from "../application/modify-user";
+// import { OAuth2Client } from "google-auth-library";
+
 
 
 
@@ -26,7 +28,7 @@ export class UserController {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(body.password, saltRounds);
 
-    const newUser: userFieldsNoId = {
+    const newUser: UserFieldsNoId = {
       passwordHash: passwordHash,
       username: body.username,
       email: body.email,
@@ -89,8 +91,10 @@ export class UserController {
   }
 
   refreshTokenFunction(req: Request, res: Response) {
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (req.cookies?.jwt) {
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const REFRESH_TOKEN = req.cookies.jwt as string;
 
@@ -116,13 +120,23 @@ export class UserController {
     return;
   }
 
-  async registerUserFunctionExternal() {
-    // TODO
-  }
+  // async googleSignUpFunction(req: Request, res: Response) {
+  //   const client = new OAuth2Client();
+  //   const token = req.body['id_token'];
+  //   async function verify() {
+  //     const ticket = await client.verifyIdToken({
+  //       idToken: token,
+  //       audience: CLIENT_ID,
+  //     });
+  //     const payload = ticket.getPayload();
+  //     if (!payload) {
+  //       throw new Error('No valid payload found.');
+  //     }
+  //     const userId = payload['sub'];
+  //   }
 
-  async loginUserFunctionExternal() {
-    // TODO
-  }
+  //   verify().catch(console.error);
+  // }
 
   async findUserFunction(req: Request, res: Response) {
     const id = req.params.id;
@@ -194,7 +208,7 @@ export class UserController {
     }
 
     let passwordHash;
-    let modifiedUser: userFieldsNoId;
+    let modifiedUser: Partial<UserFieldsNoId>;
     if (body.password) {
       const saltRounds = 10;
       passwordHash = await bcrypt.hash(body.password, saltRounds);
@@ -210,7 +224,6 @@ export class UserController {
       };
     } else {
       modifiedUser = {
-        passwordHash: '',
         username: body.username,
         email: body.email,
         phone: body.phone,
