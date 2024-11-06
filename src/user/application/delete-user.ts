@@ -5,7 +5,7 @@ export class DeleteUser {
 
   constructor(private readonly userRepository: UserRepository) { }
 
-  async run(userId: string) {
+  async run(userId: number): Promise<number | string> {
     const deletedUser = await this.userRepository.deleteUser(userId);
 
     if (deletedUser === 0) return 'User already deleted.';

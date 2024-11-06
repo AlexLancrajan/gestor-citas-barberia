@@ -2,12 +2,12 @@ import { Booking, BookingFieldsNoId } from "../domain/booking";
 import { BookingRepository } from "../domain/booking-repository";
 
 
-export class CreateBooking {
+export class ModifyBooking {
   constructor(private readonly bookingRepository: BookingRepository) { }
 
-  async run(bookingFieldsNoId: BookingFieldsNoId): Promise<Booking> {
+  async run(bookingId: number, bookingFieldsNoId: Partial<BookingFieldsNoId>): Promise<Booking> {
     try {
-      const booking = await this.bookingRepository.createBooking(bookingFieldsNoId);
+      const booking = await this.bookingRepository.modifyBooking(bookingId, bookingFieldsNoId);
       return booking;
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -1,0 +1,21 @@
+import { Site, SiteFieldsNoId } from "../domain/site";
+import { SiteRepository } from "../domain/site-repository";
+
+
+export class ModifySite {
+
+  constructor(private readonly siteRepository: SiteRepository) { }
+
+  async run(siteId: number, siteFieldsNoId: Partial<SiteFieldsNoId>): Promise<Site> {
+    try {
+      const modifiedSite = await this.siteRepository.modifySite(siteId, siteFieldsNoId);
+      return modifiedSite;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Internal server error.');
+      }
+    }
+  }
+}

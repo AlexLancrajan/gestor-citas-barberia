@@ -14,7 +14,7 @@ export interface UserFields extends UserFieldsNoId {
 
 export interface UserForToken {
   username: string,
-  userId: string,
+  userId: number,
   role: 'admin' | 'barber' | 'user'
 }
 

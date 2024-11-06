@@ -121,7 +121,7 @@ export class UserController {
   }
 
   async findUserFunction(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
 
     if (decodedToken.userId !== id || decodedToken.role !== 'admin') {
@@ -162,7 +162,7 @@ export class UserController {
   }
 
   async deleteUserFunction(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
 
     if (decodedToken.userId !== id || decodedToken.role !== 'admin') {
@@ -181,7 +181,7 @@ export class UserController {
   }
 
   async modifyUserFunction(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     const decodedToken: UserForToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
     const body = req.body as UserModificationSchema;
 

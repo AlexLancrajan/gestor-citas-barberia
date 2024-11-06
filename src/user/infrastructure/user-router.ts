@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 
-import { validateUserData } from '../../middleware';
+import { validateSchemaData } from '../../middleware';
 import { userLoginSchema, userModificationSchema, userRegistrationSchema } from './user-schema';
 import { userController } from './dependencies';
 
@@ -9,13 +9,13 @@ const userRouter = express.Router();
 
 userRouter.post(
   '/register',
-  validateUserData(userRegistrationSchema),
+  validateSchemaData(userRegistrationSchema),
   userController.registerUserFunction.bind(userController)
 );
 
 userRouter.post(
   '/login',
-  validateUserData(userLoginSchema),
+  validateSchemaData(userLoginSchema),
   userController.loginUserFunction.bind(userController)
 );
 
@@ -41,7 +41,7 @@ userRouter.delete(
 
 userRouter.put(
   '/:id',
-  validateUserData(userModificationSchema),
+  validateSchemaData(userModificationSchema),
   userController.modifyUserFunction.bind(userController)
 );
 

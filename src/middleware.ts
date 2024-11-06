@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// Error handling for express routes.
 
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError } from 'zod';
 
-export const validateUserData = (schema: z.ZodObject<any, any>) => {
+export const validateSchemaData = (schema: z.ZodObject<any, any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       schema.parse(req.body);
@@ -34,3 +33,5 @@ export const tokenExtractor = (req: Request, _res: Response, next: NextFunction)
   }
   next();
 };
+
+export type appointmentDates = { initDate: Date, endDate: Date };

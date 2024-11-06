@@ -1,16 +1,18 @@
-import express from 'express';
-import { tokenExtractor } from './middleware';
-import { userRouter } from './user/infrastructure/user-router';
 import options from './config';
+import express from 'express';
 import { Sequelize } from 'sequelize';
-import { error } from 'console';
-
-const app = express();
-
 // Database instance
-const sequelize = new Sequelize(options.databaseUrl);
+export const sequelize = new Sequelize(
+  options.databaseName,
+  options.databaseUser,
+  options.databasePassword,
+  {
+    host: 'localhost',
+    dialect: 'mysql'
+  }
+);
 
-async function checkConnection() {
+export async function checkConnection() {
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
@@ -18,12 +20,23 @@ async function checkConnection() {
     console.error('Unable to connect to the database:', error);
   }
 }
-checkConnection().catch(error);
 
+import { tokenExtractor } from './middleware';
+import { userRouter } from './user/infrastructure/user-router';
+import { siteRouter } from './site/infrastructure/site-router';
+import { serviceRouter } from './service/infrastructure/service-router';
+import { bookingRouter } from './booking/infrastructure/booking-router';
+import { appointmentRouter } from './appointment/infrastructure/appointment-router';
+
+const app = express();
 
 app.use(express.json());
 app.use(tokenExtractor);
 
 app.use('/api/users', userRouter);
+app.use('/api/sites', siteRouter);
+app.use('api/services', serviceRouter);
+app.use('/api/bookings', bookingRouter);
+app.use('/api/appointments', appointmentRouter);
 
-export { app, sequelize };
+export { app };

@@ -63,7 +63,7 @@ export class mySQLUserRepository implements UserRepository {
     }
   }
 
-  async modifyUser(userId: string, modifiedUser: Partial<UserFieldsNoId>): Promise<UserNoHash | Error> {
+  async modifyUser(userId: number, modifiedUser: Partial<UserFieldsNoId>): Promise<UserNoHash> {
     const foundUser = await UserImplementation.findByPk(Number(userId));
     if (foundUser) {
       const originalUser: User = foundUser.toJSON();
@@ -100,14 +100,14 @@ export class mySQLUserRepository implements UserRepository {
           throw new Error('Could not find the modified the user.');
         }
       } else {
-        throw new Error('Could not modify the user');
+        throw new Error('Could not modify the user.');
       }
     } else {
       throw new Error('Could not find the user.');
     }
   }
 
-  async getById(userId: string): Promise<UserNoHash | null> {
+  async getById(userId: number): Promise<UserNoHash | null> {
     const collectedUser = await UserImplementation.findByPk(Number(userId));
     if (collectedUser) {
       const userHash: User = collectedUser.toJSON();
@@ -193,7 +193,7 @@ export class mySQLUserRepository implements UserRepository {
     }
   }
 
-  async deleteUser(userId: string): Promise<number> {
+  async deleteUser(userId: number): Promise<number> {
     const deleted = await UserImplementation.destroy({ where: { userId: Number(userId) } });
     return deleted;
   }

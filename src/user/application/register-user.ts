@@ -1,11 +1,11 @@
-import { UserNoId } from "../domain/user";
+import { UserNoHash, UserNoId } from "../domain/user";
 import { UserRepository } from "../domain/user-repository";
 
 export class RegisterUser {
 
   constructor(private readonly userRepository: UserRepository) { }
 
-  async run(user: UserNoId) {
+  async run(user: UserNoId): Promise<UserNoHash> {
     const createdUser = await this.userRepository.createUser(user);
 
     if (!createdUser) {
