@@ -1,19 +1,37 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 import { siteController } from './dependencies';
-import { validateSchemaData } from '../../ztools/middleware';
+import { validateSchemaData, verifyTokenMiddleware } from '../../ztools/middleware';
 import { siteSchema } from './site-schema';
 
 const siteRouter = express.Router();
 
-siteRouter.get('/', siteController.findSitesFunction.bind(siteController));
+siteRouter.get(
+  '/', 
+  siteController.findSitesFunction.bind(siteController)
+);
 
-siteRouter.get('/:id', siteController.findSiteFunction.bind(siteController));
+siteRouter.get(
+  '/:id', 
+  siteController.findSiteFunction.bind(siteController)
+);
 
-siteRouter.post('/', validateSchemaData(siteSchema), siteController.createSiteFunction.bind(siteController));
+siteRouter.post('/',
+  verifyTokenMiddleware, 
+  validateSchemaData(siteSchema), 
+  siteController.createSiteFunction.bind(siteController)
+);
 
-siteRouter.put('/:id', validateSchemaData(siteSchema), siteController.modifySiteFunction.bind(siteController));
+siteRouter.put(
+  '/:id', 
+  verifyTokenMiddleware,
+  validateSchemaData(siteSchema), 
+  siteController.modifySiteFunction.bind(siteController)
+);
 
-siteRouter.delete('/:id', siteController.deleteSiteFunction.bind(siteController));
+siteRouter.delete('/:id',
+  verifyTokenMiddleware, 
+  siteController.deleteSiteFunction.bind(siteController)
+);
 
 export { siteRouter };

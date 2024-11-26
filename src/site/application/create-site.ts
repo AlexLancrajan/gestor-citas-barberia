@@ -1,4 +1,4 @@
-import { Site, SiteInputFields } from "../domain/site";
+import { SiteFields, SiteInputFields } from "../domain/site";
 import { SiteRepository } from "../domain/site-repository";
 
 
@@ -6,7 +6,7 @@ export class CreateSite {
 
   constructor(private readonly siteRepository: SiteRepository) { }
 
-  async run(siteInputFields: SiteInputFields): Promise<Site> {
+  async run(siteInputFields: SiteInputFields): Promise<SiteFields> {
 
     try {
       const createdSite = await this.siteRepository.createSite(siteInputFields);

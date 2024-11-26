@@ -3,57 +3,68 @@
  */
 
 import { SiteRepository } from "../domain/site-repository";
-import { Site, SiteInputFields } from "../domain/site";
-import { mySQLDate, mySQLBooking, mySQLService, mySQLSite, mySQLUser } from "../../mySQL";
+import { SiteFields, SiteInputFields } from "../domain/site";
+import { mySQLSite } from "../../mySQL";
 
 export class mySQLSiteRepository implements SiteRepository {
 
-  async getSite(id: number): Promise<Site | null> {
-    const site = await mySQLSite.findByPk(id, { include: [mySQLService, mySQLDate, mySQLBooking, mySQLUser] });
+  async getSite(id: number): Promise<SiteFields | null> {
+    const site = await mySQLSite.findByPk(id, 
+      { 
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
+      }
+    );
 
     if (!site) return null;
-    else return new Site(site.toJSON());
+    else return site.toJSON();
   }
 
-  async getSiteForUsers(id: number): Promise<Site | null> {
-    const site = await mySQLSite.findByPk(id, { include: [mySQLService, mySQLDate, mySQLUser], attributes: { exclude: ['bookingRef']} });
-
-    if (!site) return null;
-    else return new Site(site.toJSON());
-  }
-
-  async getSites(): Promise<Site[] | null> {
-    const sites = await mySQLSite.findAll({ include: [mySQLService, mySQLDate, mySQLBooking, mySQLUser], attributes: { exclude: ['bookingRef']} });
+  async getSites(page: number, pageSize: number): 
+  Promise<SiteFields[] | null> {
+    const sites = await mySQLSite.findAll(
+      { 
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
+        limit: pageSize || 50,
+        offset: page * pageSize || 0,
+      }
+    );
 
     if (!sites) return null;
 
-    else return sites.map(site => new Site(site.toJSON()));
+    else return sites.map(site => site.toJSON());
   }
 
-  async getSitesForUsers(): Promise<Site[] | null> {
-    const sites = await mySQLSite.findAll({ include: [mySQLService, mySQLDate, mySQLUser] });
-
-    if (!sites) return null;
-
-    else return sites.map(site => new Site(site.toJSON()));
-  }
-
-  async createSite(siteInputFields: Partial<SiteInputFields>): Promise<Site | null> {
-    const newSite = await mySQLSite.create({
+  async createSite(siteInputFields: SiteInputFields): Promise<SiteFields | null> {
+    await mySQLSite.create({
       siteName: siteInputFields.siteName,
       siteDirection: siteInputFields.siteDirection,
       siteSchedule: siteInputFields.siteSchedule,
+      sitePhone: siteInputFields.sitePhone,
       siteDescription: siteInputFields.siteDescription
     });
 
+    const newSite = await mySQLSite.findOne( {
+        where: {
+          siteName: siteInputFields.siteName
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
+      }
+    );
+
     if (newSite) {
-      return new Site(newSite.toJSON());
+      return newSite.toJSON();
     } else {
       return null;
     }
   }
 
-  async modifySite(id: number, siteInputFields: Partial<SiteInputFields>): Promise<Site> {
+  async modifySite(id: number, siteInputFields: Partial<SiteInputFields>): Promise<SiteFields> {
     const foundSite = await mySQLSite.findByPk(id);
     if(!foundSite) {
       throw new Error('Could not find the site. ');
@@ -63,10 +74,17 @@ export class mySQLSiteRepository implements SiteRepository {
 
     await mySQLSite.update(updatedSite, { where: { siteId: id }});
 
-    const modifiedSite = await mySQLSite.findByPk(id);
+    const modifiedSite = await mySQLSite.findByPk(id,
+      {
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
+      }
+    );
+
     if(!modifiedSite) throw new Error('Could not modify the site.');
 
-    return new Site(modifiedSite.toJSON());
+    return modifiedSite.toJSON();
   }
 
   async deleteSite(id: number): Promise<number> {

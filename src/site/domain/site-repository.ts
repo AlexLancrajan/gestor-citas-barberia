@@ -6,20 +6,16 @@
  * 4. Delete site.
  */
 
-import { Site, SiteInputFields } from "./site";
+import { SiteFields, SiteInputFields } from "./site";
 
 export interface SiteRepository {
-  getSite(id: number): Promise<Site | null>;
+  getSite(id: number): Promise<SiteFields | null>;
 
-  getSiteForUsers(id: number): Promise<Site | null>;
+  getSites(page: number, pageSize: number): Promise<SiteFields[] | null>;
 
-  getSites(): Promise<Site[] | null>;
+  createSite(siteInputFields: Partial<SiteInputFields>): Promise<SiteFields | null>;
 
-  getSitesForUsers(): Promise<Site[] | null>;
-
-  createSite(siteInputFields: Partial<SiteInputFields>): Promise<Site | null>;
-
-  modifySite(id: number, siteInputFields: Partial<SiteInputFields>): Promise<Site>;
+  modifySite(id: number, siteInputFields: Partial<SiteInputFields>): Promise<SiteFields>;
 
   deleteSite(id: number): Promise<number>;
 }

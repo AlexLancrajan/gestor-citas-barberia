@@ -1,13 +1,21 @@
 import { z } from 'zod';
 
 export const siteSchema = z.object({
-  siteName: z.string(),
-  siteDirection: z.string(),
-  siteSchedule: z.array(z.object({
-    day: z.string(),
-    schedule: z.array(z.date())
-  })),
+  siteName: z.string().trim(),
+  siteDirection: z.string().trim(),
+  siteSchedule: z.string().trim(),
+  sitePhone: z.string().trim(),
+  siteDescription: z.string().trim(),
+});
+
+export const siteModificationSchema = z.object({
+  siteName: z.string().trim().optional(),
+  siteDirection: z.string().trim().optional(),
+  siteSchedule: z.string().trim().optional(),
+  sitePhone: z.string().trim().optional(),
   siteDescription: z.string().optional(),
 });
 
 export type SiteSchema = z.infer<typeof siteSchema>;
+export type SiteModificationSchema = 
+z.infer<typeof siteModificationSchema>;

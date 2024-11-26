@@ -1,4 +1,4 @@
-import { Site, SiteInputFields } from "../domain/site";
+import { SiteFields, SiteInputFields } from "../domain/site";
 import { SiteRepository } from "../domain/site-repository";
 
 
@@ -6,7 +6,7 @@ export class ModifySite {
 
   constructor(private readonly siteRepository: SiteRepository) { }
 
-  async run(siteId: number, siteInputFields: Partial<SiteInputFields>): Promise<Site> {
+  async run(siteId: number, siteInputFields: Partial<SiteInputFields>): Promise<SiteFields> {
     try {
       const modifiedSite = await this.siteRepository.modifySite(siteId, siteInputFields);
       return modifiedSite;

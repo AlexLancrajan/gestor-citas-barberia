@@ -7,7 +7,7 @@ initSQLModels().catch(console.error);
 //Routes for the application.
 import { userRouter } from './user/infrastructure/user-router';
 import { googleRouter } from './zsign-up-strategies/google-sign-up';
-// import { siteRouter } from './site/infrastructure/site-router';
+import { siteRouter } from './site/infrastructure/site-router';
 // import { serviceRouter } from './service/infrastructure/service-router';
 // import { bookingRouter } from './booking/infrastructure/booking-router';
 // import { appointmentRouter } from './date/infrastructure/appointment-router';
@@ -22,7 +22,7 @@ app.use(cookieParser());
 //Routes.
 app.use('/api/users', userRouter);
 app.use('/api/google', googleRouter);
-// app.use('/api/sites', siteRouter);
+app.use('/api/sites', siteRouter);
 // app.use('/api/services', serviceRouter);
 // app.use('/api/bookings', bookingRouter);
 // app.use('/api/appointments', appointmentRouter);

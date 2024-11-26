@@ -83,7 +83,8 @@ const mySQLUser = sequelize.define(
  * 1. siteId: Primary key stored as number since it will be easier to find. Autoincrement and not null.
  * 2. siteName: Do I need to explain this one. Stored as string, must be unique and not null.
  * 3. siteAddress: And this one. Stored as string, must be unique and not null.
- * 4. siteSchedule: This one is stored as JSON because it is required to be an array of objects containing days, open and close times. Not null.
+ * 4. siteSchedule: Stored as string. Not null.
+ * 5. sitePhone: Stored as string. Not null and unique.
  * 5. siteDescription: Stored as string it provides aditional information about the site in case is required. Can be optional.
  */
 
@@ -106,8 +107,13 @@ const mySQLSite = sequelize.define(
       unique: true
     },
     siteSchedule: {
-      type: DataTypes.JSON,
+      type: DataTypes.STRING(200),
       allowNull: false,
+    },
+    sitePhone: {
+      type: DataTypes.STRING(12),
+      allowNull: false,
+      unique: true
     },
     siteDescription: {
       type: DataTypes.STRING,
