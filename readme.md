@@ -131,7 +131,7 @@ En este apartado se describira la implementación del concepto de local asociado
 #### RUTAS:
 
 1. **[GET] FIND SITE:** */api/sites/:id*. Esta ruta devuelve un sitio basado en su id.
-2. **[GET] FIND SITES:** */api/sites*. Esta ruta devuelve todos los locales. Acepta queriess de paginado (*/?page=int&pageSize=int*). Por defecto devuelve los primeros 50 resultados.
+2. **[GET] FIND SITES:** */api/sites*. Esta ruta devuelve todos los locales. Acepta queries de paginado (*/?page=int&pageSize=int*). Por defecto devuelve los primeros 50 resultados.
 3. **[POST] CREATE SITE:** */api/sites*. En esta ruta se crea un sitio. Necesita rol de admin.
 4. **[PUT] CREATE SITE:** */api/sites/:id*. En esta ruta se modifica un sitio por id. Necesita rol de admin.
 5. **[DELETE] CREATE SITE:** */api/sites/:id*. En esta ruta se elimina un sitio por id. Necesita rol de admin.
@@ -157,6 +157,49 @@ En este apartado se describira la implementación del concepto de local asociado
     - Se necesita permisos de admin. Sino devuelve error con código *401*-
     - En caso negativo devuelve error con código *404* ó *500*.
 
+### BARBERO:
+
+En este apartado se describe la implementación del concepto de barbero.
+
+#### MODELO:
+
+  ```json
+    {
+      "barberId": "UUID4",
+      "barberName": "Ramiro",
+      "barberSurname": "Fuentes",
+      "barberPicture": "<enlace a la imagen>",
+      "barberDescription": "Hago cortes del estilo...",
+      "siteIdRef": 43
+    }    
+  ```
+
+#### RUTAS:
+1. **[GET] FIND BARBER:** */api/barber/:id*. Esta ruta devuelve un barbero basado en su id y una query del estilo */?getSite=bool*, que se encarga de mostrar el sitio si es true.
+2. **[GET] FIND BARBERS:** */api/barber*. Esta ruta devuelve todos los locales. Acepta queries de paginado (*/?page=int&pageSize=int*) y dos queries más */?getSites=bool&siteIdRef=int* que se encargan de mostrar los sitios y filtrar por sitio respectivamente. Por defecto devuelve los primeros 50 resultados sin incluir los sitios y sin filtrar.
+3. **[POST] CREATE BARBERS:** */api/barber*. En esta ruta se crea un barbero. Necesita rol de admin.
+4. **[PUT] CREATE BARBER:** */api/barber/:id*. En esta ruta se modifica un barbero por id. Necesita rol de admin o barbero. En el caso del barbero no se puede modificar el sitio.
+5. **[DELETE] CREATE BARBER:** */api/barber/:id*. En esta ruta se elimina un barbero por id. Necesita rol de admin.
+
+#### CONTROLADORES:
+1. **findBarberFunction** asociado a *(1)* de rutas:
+    - Devuelve un barbero buscado por id. El formato es el mismo del modelo y según la query devuelve los campos del sitio o la id de la referencia.
+    - En caso negativo devuelve error con código *404* ó *500*.
+2. **findBarbersFunction** asociado a *(2)* de rutas:
+    - Devuelve una lista de barberos dependiendo del los parámetros pasados por la query de la ruta. Por defecto los primeros 50 resultados sin filtrar y sin incluir los sitios.
+    - En caso negativo devuelve error con código *404* ó *500*.
+3. **createBarberFunction** asociado a *(3)* de rutas:
+    - Crea un barbero utilizando el esquema del modelo sin la id. Son obligatorios todos los campos.
+    - Se necesita permisos de admin. Sino devuelve error con código *401*.
+    - En caso negativo devuelve error con código *400* ó *500*.
+4. **modifyBarberFunction** asociado a *(4)* de rutas:
+    - Modifica un barbero utilizando el esquema del modelo sin la id. Los campos pasados son *opcionales* y en caso de no modificar nada se mantiene el sitio original. El barbero puede modificar sus datos, pero no el sitio.
+    - Se necesita permisos de admin o barbero. Sino devuelve error con código *401*-
+    - En caso negativo devuelve error con código *400* ó *500*.
+5. **deleteBarberFunction** asociado a *(5)* de rutas:
+    - Elimina un barbero pasandole por parámetros su id asociada.
+    - Se necesita permisos de admin. Sino devuelve error con código *401*-
+    - En caso negativo devuelve error con código *404* ó *500*.
 
 ## PREGUNTAS SOBRE EL PROYECTO O CONTACTO:
 

@@ -6,6 +6,7 @@ import { ModifyBarber } from "../application/modify-barber";
 import { Request, Response } from "express";
 import { BarberInputSchema, BarberModificationSchema } from "./barber-schema";
 import { Roles } from "../../user/domain/user";
+import { omit } from "lodash";
 
 export class BarberController {
   constructor(
@@ -51,7 +52,7 @@ export class BarberController {
 
   async createBarbersFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
-    if(!role && role !== Roles.admin) {
+    if(role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access'});
     }
 
@@ -70,15 +71,22 @@ export class BarberController {
 
   async modifyBarbersFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
-    if(!role && role !== Roles.admin) {
+    if(role !== Roles.admin && role !== Roles.barber) {
       return res.status(401).json({ error: 'Unauthorized access'});
     }
 
     const barberId = req.params.id;
     const barberInputFields = req.body as BarberModificationSchema;
     try {
-      const createdBarber = await this.modifyBarber.run(barberId, barberInputFields);
-      return createdBarber;
+      if(role === Roles.barber) {
+        const newBarberInputFields = omit(barberInputFields, 'siteIdRef');
+        const createdBarber = await this.modifyBarber.run(barberId, newBarberInputFields);
+        return createdBarber;
+      } else {
+        const createdBarber = await this.modifyBarber.run(barberId, barberInputFields);
+        return createdBarber;
+      }
+
     } catch (error: unknown) {
       if(error instanceof Error) {
         return res.status(400).json({ error: error.message });

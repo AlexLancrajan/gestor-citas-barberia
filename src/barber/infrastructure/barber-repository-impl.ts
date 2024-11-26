@@ -26,7 +26,7 @@ export class mySQLBarberRepository implements BarberRepository{
         barberId, 
         {
           attributes: {
-            exclude: ['siteIdRef','createdAt','updatedAt']
+            exclude: ['createdAt','updatedAt']
           }
         }
       );
