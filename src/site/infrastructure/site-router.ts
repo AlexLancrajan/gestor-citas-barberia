@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 import { siteController } from './dependencies';
-import { validateSchemaData } from '../../middleware';
+import { validateSchemaData } from '../../ztools/middleware';
 import { siteSchema } from './site-schema';
 
 const siteRouter = express.Router();

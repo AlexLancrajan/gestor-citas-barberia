@@ -8,9 +8,8 @@ import { ModifyUser } from "../application/modify-user";
 import { RegisterUser } from "../application/register-user";
 import { UserController } from "./user-controller";
 import { mySQLUserRepository } from "./user-repository-implement";
-import { sequelize } from "../../app";
 
-const userRepository = new mySQLUserRepository(sequelize);
+const userRepository = new mySQLUserRepository();
 
 const registerUser = new RegisterUser(userRepository);
 

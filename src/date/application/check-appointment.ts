@@ -1,19 +1,16 @@
 import { isDate } from "util/types";
-import { Availability } from "../../booking/domain/booking";
 import { AppointmentRepository } from "../domain/appointment-repository";
+import { Appointment } from "../domain/appointment";
 
 
 export class CheckAppointment {
   constructor(private readonly appointmentRepository: AppointmentRepository) { }
 
-  async run(date: Date): Promise<[number, Availability]> {
-
+  async run(date: Date): Promise<Appointment> {
     if(!isDate(date)) throw new Error('Invalid format of date.');
 
     const appointment = await this.appointmentRepository.getAppointmentByDate(date);
-
     if (!appointment) throw new Error('Appointment not found');
-
-    else return [appointment.appointmentFields.appointmentId, appointment.appointmentFields.appointmentDisponibility];
+    else return appointment;
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 import { bookingController } from './dependencies';
-import { validateSchemaData } from '../../middleware';
+import { validateSchemaData } from '../../ztools/middleware';
 import { bookingSchema } from './booking-schema';
 
 const bookingRouter = express.Router();
@@ -15,7 +15,5 @@ bookingRouter.post('/', validateSchemaData(bookingSchema), bookingController.cre
 bookingRouter.put('/:id', validateSchemaData(bookingSchema), bookingController.modifyBookingFunction.bind(bookingController));
 
 bookingRouter.delete('/:id', bookingController.deleteBookingFunction.bind(bookingController));
-
-bookingRouter.post('/:id', bookingController.checkAvailabilityFunction.bind(bookingController));
 
 export { bookingRouter };

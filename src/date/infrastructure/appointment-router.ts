@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 import { appointmentController } from './dependencies';
-import { validateSchemaData } from '../../middleware';
+import { validateSchemaData } from '../../ztools/middleware';
 import { appointmentSchema, dateSchema } from './appointment-schema';
 
 const appointmentRouter = express.Router();

@@ -1,107 +1,76 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+/**
+ * Implementation of the repository of Site for mySQL queries.
+ */
+
 import { SiteRepository } from "../domain/site-repository";
-import { Site, SiteFieldsNoId } from "../domain/site";
-
-class SiteImplementation extends Model { }
-
-const initSiteModel = (sequelize: Sequelize) => {
-  SiteImplementation.init(
-    {
-      siteId: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-      },
-      name: {
-        type: DataTypes.CHAR(30),
-        allowNull: false,
-        unique: true
-      },
-      direction: {
-        type: DataTypes.CHAR(80),
-        allowNull: false,
-        unique: true
-      },
-      schedule: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.STRING,
-      }
-    },
-    {
-      sequelize,
-      modelName: 'Site'
-    }
-  );
-};
+import { Site, SiteInputFields } from "../domain/site";
+import { mySQLDate, mySQLBooking, mySQLService, mySQLSite, mySQLUser } from "../../mySQL";
 
 export class mySQLSiteRepository implements SiteRepository {
-  constructor(sequelize: Sequelize) {
-    try {
-      initSiteModel(sequelize);
-      SiteImplementation.sync().catch(console.error);
-    } catch (error: unknown) {
-      console.log(error);
-    }
-  }
+
   async getSite(id: number): Promise<Site | null> {
-    const site = await SiteImplementation.findByPk(id);
+    const site = await mySQLSite.findByPk(id, { include: [mySQLService, mySQLDate, mySQLBooking, mySQLUser] });
 
-    if (site) return new Site(site.toJSON());
-    else return null;
+    if (!site) return null;
+    else return new Site(site.toJSON());
   }
+
+  async getSiteForUsers(id: number): Promise<Site | null> {
+    const site = await mySQLSite.findByPk(id, { include: [mySQLService, mySQLDate, mySQLUser], attributes: { exclude: ['bookingRef']} });
+
+    if (!site) return null;
+    else return new Site(site.toJSON());
+  }
+
   async getSites(): Promise<Site[] | null> {
-    const sites = await SiteImplementation.findAll();
+    const sites = await mySQLSite.findAll({ include: [mySQLService, mySQLDate, mySQLBooking, mySQLUser], attributes: { exclude: ['bookingRef']} });
 
-    if (sites) return sites.map(site => new Site(site.toJSON()));
+    if (!sites) return null;
 
-    else return null;
+    else return sites.map(site => new Site(site.toJSON()));
   }
-  async createSite(siteFieldsNoId: SiteFieldsNoId): Promise<Site> {
-    const newSite = await SiteImplementation.create({
-      name: siteFieldsNoId.name,
-      direction: siteFieldsNoId.direction,
-      schedule: siteFieldsNoId.schedule,
-      description: siteFieldsNoId.description
+
+  async getSitesForUsers(): Promise<Site[] | null> {
+    const sites = await mySQLSite.findAll({ include: [mySQLService, mySQLDate, mySQLUser] });
+
+    if (!sites) return null;
+
+    else return sites.map(site => new Site(site.toJSON()));
+  }
+
+  async createSite(siteInputFields: Partial<SiteInputFields>): Promise<Site | null> {
+    const newSite = await mySQLSite.create({
+      siteName: siteInputFields.siteName,
+      siteDirection: siteInputFields.siteDirection,
+      siteSchedule: siteInputFields.siteSchedule,
+      siteDescription: siteInputFields.siteDescription
     });
 
     if (newSite) {
-      return newSite.toJSON();
+      return new Site(newSite.toJSON());
     } else {
-      throw new Error('Failed to create new Site');
+      return null;
     }
   }
-  async modifySite(id: number, siteFieldsNoId: Partial<SiteFieldsNoId>): Promise<Site> {
-    const findSite = await SiteImplementation.findByPk(id);
 
-    if (findSite) {
-      const originalSite: Site = new Site(findSite.toJSON());
-      const modifiedSite = await SiteImplementation.update(
-        {
-          name: siteFieldsNoId.name || originalSite.siteFields.name,
-          direction: siteFieldsNoId.direction || originalSite.siteFields.direction,
-          schedule: siteFieldsNoId.schedule || originalSite.siteFields.schedule,
-          description: siteFieldsNoId.description || originalSite.siteFields.description
-        },
-        { where: { siteId: id } }
-      );
-
-      if (modifiedSite) {
-        const newSite = await SiteImplementation.findByPk(id);
-
-        if (newSite) return newSite.toJSON();
-        else throw new Error('Modified Site not Found');
-      } else {
-        throw new Error('Could not modify the Site');
-      }
-    } else {
-      throw new Error('Site not found');
+  async modifySite(id: number, siteInputFields: Partial<SiteInputFields>): Promise<Site> {
+    const foundSite = await mySQLSite.findByPk(id);
+    if(!foundSite) {
+      throw new Error('Could not find the site. ');
     }
+
+    const updatedSite: SiteInputFields = { ...foundSite.toJSON(), ...siteInputFields};
+
+    await mySQLSite.update(updatedSite, { where: { siteId: id }});
+
+    const modifiedSite = await mySQLSite.findByPk(id);
+    if(!modifiedSite) throw new Error('Could not modify the site.');
+
+    return new Site(modifiedSite.toJSON());
   }
+
   async deleteSite(id: number): Promise<number> {
-    const deletedSite = await SiteImplementation.destroy({ where: { siteId: id } });
+    const deletedSite = await mySQLSite.destroy({ where: { siteId: id } });
     return deletedSite;
   }
 }

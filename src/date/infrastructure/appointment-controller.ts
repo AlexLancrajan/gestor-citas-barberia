@@ -3,13 +3,11 @@ import { DeleteAppointment } from "../application/delete-appointment";
 import { FindAppointment } from "../application/find-appointment";
 import { ModifyAppointment } from "../application/modify-appointment";
 import { UserForToken } from "../../user/domain/user";
-
 import { Request, Response } from "express";
 import jwt from 'jsonwebtoken';
-import options from "../../config";
-import { appointmentDates } from "../../middleware";
+import options from "../../ztools/config";
 import { CheckAppointment } from "../application/check-appointment";
-import { AppointmentSchema } from "./appointment-schema";
+import { AppointmentDateSchema, AppointmentSchema } from "./appointment-schema";
 
 export class AppointmentController {
   constructor(
@@ -21,10 +19,10 @@ export class AppointmentController {
   ) { }
 
   async getAppointmentFunction(req: Request, res: Response) {
-    const id = Number(req.params.id);
+    const appointmentId = Number(req.params.id);
 
     try {
-      const appointment = await this.findAppointment.runAppointment(id);
+      const appointment = await this.findAppointment.runAppointment(appointmentId);
       return res.json(appointment);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -33,7 +31,6 @@ export class AppointmentController {
         return res.status(500).json({ error: 'Internal server error' });
       }
     }
-
   }
 
   async getAppointmentsFunction(_req: Request, res: Response) {
@@ -51,12 +48,11 @@ export class AppointmentController {
 
   async createAppointmentsFunction(req: Request, res: Response) {
     const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-
     if (decodedToken.role !== 'admin') return res.status(401).json({ error: 'Unauthorized access' });
 
-    const { initDate, endDate } = req.body as appointmentDates;
+    const { initDate, endDate, minutes } = req.body as AppointmentDateSchema;
     try {
-      const createdAppointments = await this.createAppointment.run(initDate, endDate);
+      const createdAppointments = await this.createAppointment.run(initDate, endDate, minutes);
       return createdAppointments;
     } catch (error) {
       if (error instanceof Error) {
@@ -68,9 +64,7 @@ export class AppointmentController {
   }
 
   async checkAppointmentFunction(req: Request, res: Response) {
-
     const body = req.body as Date;
-
     try {
       const appointment = await this.checkAppointment.run(body);
       return res.json(appointment);
@@ -84,7 +78,6 @@ export class AppointmentController {
   }
 
   async modifyAppointmentFunction(req: Request, res: Response) {
-    
     const appointmentId = Number(req.params.id);
     const body = req.body as AppointmentSchema;
     
@@ -102,11 +95,9 @@ export class AppointmentController {
 
   async deleteAppointmentFunction(req: Request, res: Response) {
     const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-
     if (decodedToken.role !== 'admin') return res.status(401).json({ error: 'Unauthorized access' });
 
     const appointmentId = Number(req.params.id);
-
     try {
       const deletedStatus = await this.deleteAppointment.run(appointmentId);
       return res.json({ status: deletedStatus });

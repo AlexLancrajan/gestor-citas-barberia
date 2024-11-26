@@ -1,200 +1,209 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
-import { User, UserFieldsNoId, UserNoHash, UserNoId } from "../domain/user";
+/**
+ * Implmenentation of User Repository based on sequelize library. 
+ * For the definitions of the supported operations see user-repository.ts
+ */
+
+import { mySQLUser } from "../../mySQL";
+import { UserRegModFields, Roles, UserNoHashField, UserFields } from "../domain/user";
 import { UserRepository } from "../domain/user-repository";
-
-class UserImplementation extends Model { }
-
-const initUserModel = (sequelize: Sequelize) => {
-  UserImplementation.init(
-    {
-      userId: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-      },
-      username: {
-        type: DataTypes.CHAR(25),
-        allowNull: false,
-        unique: true
-      },
-      passwordHash: {
-        type: DataTypes.CHAR(72),
-        allowNull: false,
-        unique: true
-      },
-      email: {
-        type: DataTypes.CHAR(50),
-        allowNull: false,
-        unique: true
-      },
-      phone: {
-        type: DataTypes.CHAR(10),
-        allowNull: false,
-        unique: true
-      },
-      name: {
-        type: DataTypes.CHAR(50),
-      },
-      surname: {
-        type: DataTypes.CHAR(50),
-      },
-      role: {
-        type: DataTypes.ENUM('admin', 'user', 'barber')
-      }
-    },
-    {
-      sequelize,
-      modelName: 'User'
-    },
-  );
-
-
-};
 
 export class mySQLUserRepository implements UserRepository {
 
-  constructor(sequelize: Sequelize) {
-    try {
-      initUserModel(sequelize);
-      UserImplementation.sync().catch(console.error);
-    }
-    catch (error: unknown) {
-      console.log(error);
-    }
-  }
-
-  async modifyUser(userId: number, modifiedUser: Partial<UserFieldsNoId>): Promise<UserNoHash> {
-    const foundUser = await UserImplementation.findByPk(Number(userId));
-    if (foundUser) {
-      const originalUser: User = foundUser.toJSON();
-      const collectedUser = await UserImplementation.update(
-        {
-          username: modifiedUser.username || originalUser.userFields.username,
-          passwordHash: modifiedUser.passwordHash || originalUser.userFields.passwordHash,
-          email: modifiedUser.email || originalUser.userFields.email,
-          phone: modifiedUser.phone || originalUser.userFields.phone,
-          name: modifiedUser.name || originalUser.userFields.name,
-          surname: modifiedUser.surname || originalUser.userFields.surname,
-          role: modifiedUser.role || originalUser.userFields.role
-        },
-        { where: { userId: Number(userId) } });
-
-      if (collectedUser) {
-        const newCollectedUser = await UserImplementation.findByPk(Number(userId));
-
-        if (newCollectedUser) {
-          const userHash: User = newCollectedUser.toJSON();
-
-          const userNoHash: UserNoHash = new UserNoHash({
-            userId: userHash.userFields.userId,
-            username: userHash.userFields.username,
-            email: userHash.userFields.email,
-            phone: userHash.userFields.phone,
-            name: userHash.userFields.name,
-            surname: userHash.userFields.surname,
-            role: userHash.userFields.role
-          });
-
-          return userNoHash;
-        } else {
-          throw new Error('Could not find the modified the user.');
-        }
-      } else {
-        throw new Error('Could not modify the user.');
+  async getById(userId: string): Promise<UserNoHashField | null> {
+    const collectedUser = await 
+    mySQLUser.findByPk(
+      userId, 
+      { 
+        attributes: { 
+          exclude: ['passwordHash', 'createdAt', 'updatedAt'] 
+        } 
       }
-    } else {
-      throw new Error('Could not find the user.');
-    }
-  }
+    );
 
-  async getById(userId: number): Promise<UserNoHash | null> {
-    const collectedUser = await UserImplementation.findByPk(Number(userId));
     if (collectedUser) {
-      const userHash: User = collectedUser.toJSON();
-
-      const userNoHash: UserNoHash = new UserNoHash({
-        userId: userHash.userFields.userId,
-        username: userHash.userFields.username,
-        email: userHash.userFields.email,
-        phone: userHash.userFields.phone,
-        name: userHash.userFields.name,
-        surname: userHash.userFields.surname,
-        role: userHash.userFields.role
-      });
-
+      const userNoHash: UserNoHashField = collectedUser.toJSON();
       return userNoHash;
     } else {
       return null;
     }
   }
 
-  async getByUsername(username: string): Promise<User | null> {
-    const collectedUser = await UserImplementation.findOne({ where: { username: username } });
+  async getByUsername(username: string): Promise<UserFields | null> {
+    const collectedUser = await 
+    mySQLUser.findOne(
+      { 
+        where: { 
+          username: username 
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        } 
+      }
+    );
 
     if (collectedUser) {
-      const userHash: User = collectedUser.toJSON();
-
-      return userHash;
+      const user: UserFields = collectedUser.toJSON();
+      return user;
     } else {
       return null;
     }
   }
 
-  async getAllUsers(): Promise<UserNoHash[] | null> {
-    const collectedUsers = await UserImplementation.findAll();
+  async getByRole(
+    role: Roles, 
+    page: number, 
+    pageSize: number): 
+    Promise<UserNoHashField[] | null> {
+    const users = await mySQLUser.findAll(
+      { where: { 
+        role: role 
+        },
+        attributes: { 
+          exclude: ['passwordHash', 'createdAt', 'updatedAt'] 
+        },
+        limit: pageSize,
+        offset: page * pageSize 
+      }
+    );
+
+    if(users) {
+      const userNoHash: UserNoHashField[] = 
+      users.map(user => user.toJSON());
+      return userNoHash;
+    }  else {
+      return null;
+    }
+  }
+
+  async getByMissingTrack(
+    missingTrack: number, 
+    page: number, 
+    pageSize: number): 
+    Promise<UserNoHashField[] | null> {
+    const users = await mySQLUser.findAll(
+      { where: { 
+        missingTrack: missingTrack 
+        },
+        attributes: { 
+          exclude: ['passwordHash', 'createdAt', 'updatedAt'] 
+        },
+        limit: pageSize,
+        offset: page * pageSize 
+      }
+    );
+
+    if(users) {
+      const userNoHash: UserNoHashField[] = 
+      users.map(user => user.toJSON());
+      return userNoHash;
+    } else {
+      return null;
+    }
+  }
+
+  async getAllUsers(
+    page: number,
+    pageSize: number
+  ): Promise<UserNoHashField[] | null> {
+    const collectedUsers = 
+    await mySQLUser.findAll(
+      { attributes: { 
+        exclude: ['passwordHash', 'createdAt', 'updatedAt'] 
+        },
+        limit: pageSize,
+        offset: page * pageSize 
+      }
+    );
 
     if (collectedUsers) {
-      const usersArray: User[] = collectedUsers.map(user => user.toJSON());
-      const usersNoHashArray: UserNoHash[] = usersArray.map(user => new UserNoHash(
-        {
-          userId: user.userFields.userId,
-          username: user.userFields.username,
-          email: user.userFields.email,
-          phone: user.userFields.phone,
-          name: user.userFields.name,
-          surname: user.userFields.surname,
-          role: user.userFields.role
-        }
-      ));
-
-      return usersNoHashArray;
+      const usersArray: UserNoHashField[] = 
+      collectedUsers.map(user => user.toJSON());
+      return usersArray;
     } else {
       return null;
     }
   }
 
-  async createUser(user: UserNoId): Promise<UserNoHash | null> {
-    const newUser = await UserImplementation.create({
-      username: user.userFieldsNoId.username,
-      passwordHash: user.userFieldsNoId.passwordHash,
-      email: user.userFieldsNoId.email,
-      phone: user.userFieldsNoId.phone,
-      name: user.userFieldsNoId.name,
-      surname: user.userFieldsNoId.surname,
-      role: user.userFieldsNoId.role
-    });
+  async createUser(user: UserRegModFields): 
+  Promise<UserNoHashField | null> {
+    await mySQLUser.create(
+      {
+        username: user.username,
+        passwordHash: user.passwordHash,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        surname: user.surname,
+        role: user.role,
+        missingTrack: 0
+      }
+    );
 
-    if (newUser) {
-      const collectedUser: User = newUser.toJSON();
+    const returnedUser = 
+    await mySQLUser.findOne(
+      { 
+        where: {
+          username: user.username
+        },
+        attributes: {
+          exclude: ['passwordHash', 'createdAt', 'updatedAt']
+        }
+      }
+    );
 
-      const userNoHash: UserNoHash = new UserNoHash({
-        userId: collectedUser.userFields.userId,
-        username: collectedUser.userFields.username,
-        email: collectedUser.userFields.email,
-        phone: collectedUser.userFields.phone,
-        name: collectedUser.userFields.name,
-        surname: collectedUser.userFields.surname,
-        role: collectedUser.userFields.role
-      });
-
+    if (returnedUser) {
+      const userNoHash: UserNoHashField = returnedUser.toJSON();
       return userNoHash;
     } else {
       return null;
     }
   }
 
-  async deleteUser(userId: number): Promise<number> {
-    const deleted = await UserImplementation.destroy({ where: { userId: Number(userId) } });
+  async modifyUser(userId: string, modifiedUser: Partial<UserRegModFields>): Promise<UserNoHashField> {
+    const foundUser = await mySQLUser.findByPk(userId);
+    if (!foundUser) {
+      throw new Error('Could not find the user.');
+    }
+  
+    const updatedUserData: UserRegModFields = 
+    { ...foundUser.toJSON(), ...modifiedUser };
+  
+    await mySQLUser.update(
+      updatedUserData, 
+      { 
+        where: { 
+          userId: userId 
+        } 
+      }
+    );
+  
+    const updatedUser = 
+    await mySQLUser.findByPk(
+      userId,
+      {
+        attributes: {
+          exclude: ['passwordHash','createdAt', 'updatedAt']
+        }
+      }
+    );
+
+    if (!updatedUser) {
+      throw new Error('Could not find the modified user.');
+    }
+  
+    const userNoHash: UserNoHashField = updatedUser.toJSON();
+    return userNoHash;
+  }
+  
+
+  async deleteUser(userId: string): Promise<number> {
+    const deleted = 
+    await mySQLUser.destroy(
+      { where: { 
+        userId: userId 
+        } 
+      }
+    );
     return deleted;
   }
 }

@@ -1,15 +1,41 @@
-import { User, UserFieldsNoId, UserNoHash, UserNoId } from "./user";
+/**
+ * Definition of the user repository including all the action that could be
+ * performed to user concept.
+ */
+
+import { UserRegModFields, Roles, UserNoHashField, UserFields } from "./user";
+
 
 export interface UserRepository {
-  getById(userId: number): Promise<UserNoHash | null>;
+  /**
+  * Find operations.
+  */
+  //For all roles.
+  getById(userId: string): Promise<UserNoHashField | null>;
 
-  getByUsername(username: string): Promise<User | null>; // This one is for loging purposes
+  getByUsername(username: string): Promise<UserFields | null>;
 
-  getAllUsers(): Promise<UserNoHash[] | null>;
+  //For admins only.
+  getByRole(role: Roles, page: number, pageSize: number): 
+  Promise<UserNoHashField[] | null>;
 
-  createUser(user: UserNoId): Promise<UserNoHash | null>;
+  getByMissingTrack(missingTrack: number, page: number, pageSize: number): 
+  Promise<UserNoHashField[] | null>;
 
-  deleteUser(userId: number): Promise<number>;
+  getAllUsers(page: number, pageSize: number): Promise<UserNoHashField[] | null>;
 
-  modifyUser(userId: number, modifiedUser: Partial<UserFieldsNoId>): Promise<UserNoHash>
+  /**
+  * Create operations.
+  */
+  createUser(user: UserRegModFields): Promise<UserNoHashField | null>;
+
+  /**
+  * Delete operations.
+  */
+  deleteUser(userId: string): Promise<number>;
+
+  /**
+  * Modification operations.
+  */
+  modifyUser(userId: string, modifiedUser: Partial<UserRegModFields>): Promise<UserNoHashField>
 }

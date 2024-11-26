@@ -28,7 +28,11 @@ export default tseslint.config({
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { 'argsIgnorePattern': '^_' }
+      { 
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern' : '^_',
+        'caughtErrorsIgnorePattern' : '^_'
+       }
     ],
   },
 });

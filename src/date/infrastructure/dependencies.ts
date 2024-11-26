@@ -1,14 +1,13 @@
-import { sequelize } from '../../app';
 import { CheckAppointment } from '../application/check-appointment';
 import { CreateAppointment } from '../application/create-appointment';
 import { DeleteAppointment } from '../application/delete-appointment';
 import { FindAppointment } from '../application/find-appointment';
 import { ModifyAppointment } from '../application/modify-appointment';
 import { AppointmentController } from './appointment-controller';
-import { mySQLAppointmentRepository } from "./appointment-repository-implement";
+import { mySQLDateRepository } from "./appointment-repository-implement";
 
 
-const appointmentRepository = new mySQLAppointmentRepository(sequelize);
+const appointmentRepository = new mySQLDateRepository();
 
 const findAppointment = new FindAppointment(appointmentRepository);
 

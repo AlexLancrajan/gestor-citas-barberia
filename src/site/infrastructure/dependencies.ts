@@ -1,4 +1,3 @@
-import { sequelize } from '../../app';
 import { CreateSite } from '../application/create-site';
 import { DeleteSite } from '../application/delete-site';
 import { FindSite } from '../application/find-site';
@@ -7,7 +6,7 @@ import { SiteController } from './site-controller';
 import { mySQLSiteRepository } from "./site-repository-implement";
 
 
-const siteRepository = new mySQLSiteRepository(sequelize);
+const siteRepository = new mySQLSiteRepository();
 
 const createSite = new CreateSite(siteRepository);
 

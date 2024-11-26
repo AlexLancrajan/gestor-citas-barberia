@@ -3,11 +3,13 @@ import { Availability } from '../domain/booking';
 
 export const bookingSchema = z.object({
   bookingDate: z.date(),
-  disponibility: z.nativeEnum(Availability),
-  annotations: z.string().optional(),
-  userIdRef: z.number(),
-  serviceIdRef: z.number(),
-  siteIdRef: z.number(),
+  bookingAvailability: z.nativeEnum(Availability),
+  bookingAnnotations: z.string().optional(),
+  userId: z.number(),
+  serviceId: z.number(),
+  siteId: z.number(),
+  appointmentId: z.number(),
+  paymentId: z.number(),
 });
 
 export type BookingSchema = z.infer<typeof bookingSchema>;

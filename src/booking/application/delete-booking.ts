@@ -6,9 +6,7 @@ export class DeleteBooking {
 
   async run(bookingId: number): Promise<number | string> {
     const deletedStatus = await this.bookingRepository.deleteBooking(bookingId);
-
     if (deletedStatus === 0) return 'User already delted';
-
     else return deletedStatus;
   }
 }

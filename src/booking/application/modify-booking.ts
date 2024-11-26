@@ -1,13 +1,13 @@
-import { Booking, BookingFieldsNoId } from "../domain/booking";
+import { Booking, BookingInputFields } from "../domain/booking";
 import { BookingRepository } from "../domain/booking-repository";
 
 
 export class ModifyBooking {
   constructor(private readonly bookingRepository: BookingRepository) { }
 
-  async run(bookingId: number, bookingFieldsNoId: Partial<BookingFieldsNoId>): Promise<Booking> {
+  async run(bookingId: number, bookingInputFields: Partial<BookingInputFields>): Promise<Booking> {
     try {
-      const booking = await this.bookingRepository.modifyBooking(bookingId, bookingFieldsNoId);
+      const booking = await this.bookingRepository.modifyBooking(bookingId, bookingInputFields);
       return booking;
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -1,13 +1,13 @@
-import { Booking, BookingFieldsNoId } from "./booking";
+import { Booking, BookingInputFields } from "./booking";
 
 export interface BookingRepository {
   getBooking(bookingId: number): Promise<Booking | null>;
 
   getBookings(): Promise<Booking[] | null>;
 
-  createBooking(bookingFieldsNoId: BookingFieldsNoId): Promise<Booking>;
+  createBooking(bookingInputFields: BookingInputFields): Promise<Booking | null>;
 
-  modifyBooking(bookingId: number, bookingFieldsNoId: Partial<BookingFieldsNoId>): Promise<Booking>;
+  modifyBooking(bookingId: number, bookingInputFields: Partial<BookingInputFields>): Promise<Booking>;
 
   deleteBooking(bookingId: number): Promise<number>;
 }

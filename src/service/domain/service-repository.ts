@@ -1,14 +1,22 @@
-import { Service, ServiceFieldsNoId } from "./service";
+/**
+ * With service it can be done regular CRUD operations.
+ */
+
+import { Service, ServiceInputFields } from "./service";
 
 
 export interface ServiceRepository {
-  getService(ServiceId: number): Promise<Service | null>;
+  getService(serviceId: number): Promise<Service | null>;
+
+  getServiceForUsers(serviceId: number): Promise<Service | null>;
 
   getServices(): Promise<Service[] | null>;
 
-  createService(serviceFieldsNoId: ServiceFieldsNoId): Promise<Service>;
+  getServicesForUsers(): Promise<Service[] | null>;
 
-  modifyService(serviceId: number, serviceFieldsNoId: Partial<ServiceFieldsNoId>): Promise<Service>;
+  createService(serviceInputFields: ServiceInputFields): Promise<Service | null>;
+
+  modifyService(serviceId: number, serviceInputFields: Partial<ServiceInputFields>): Promise<Service>;
 
   deleteService(ServiceId: number): Promise<number | string>;
 }

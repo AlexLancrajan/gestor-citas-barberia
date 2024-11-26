@@ -1,4 +1,3 @@
-import { sequelize } from '../../app';
 import { CreateBooking } from '../application/create-booking';
 import { DeleteBooking } from '../application/delete-booking';
 import { FindBooking } from "../application/find-booking";
@@ -7,7 +6,7 @@ import { BookingController } from './booking-controller';
 import { mySQLBookingRepository } from './booking-repository-implement';
 
 
-const bookingRepository = new mySQLBookingRepository(sequelize);
+const bookingRepository = new mySQLBookingRepository();
 
 const findBooking = new FindBooking(bookingRepository);
 

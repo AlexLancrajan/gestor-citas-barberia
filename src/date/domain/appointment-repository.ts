@@ -1,4 +1,4 @@
-import { Appointment, AppointmentFieldsNoId } from "./appointment";
+import { Appointment, AppointmentInputFields } from "./appointment";
 
 
 export interface AppointmentRepository {
@@ -9,9 +9,9 @@ export interface AppointmentRepository {
 
   getAppointments(): Promise<Appointment[] | null>;
 
-  createAppointments(initDate: Date, endDate: Date): Promise<Appointment[]>;
+  createAppointments(initDate: Date, endDate: Date, minutes: number): Promise<Appointment[] | null>;
 
-  modifyAppointment(appointmentId: number, appointmentFieldsNoId: AppointmentFieldsNoId): Promise<Appointment>;
+  modifyAppointment(appointmentId: number, appointmentInputFields: AppointmentInputFields): Promise<Appointment>;
 
   deleteAppointment(appointmentId: number): Promise<number>;
 }

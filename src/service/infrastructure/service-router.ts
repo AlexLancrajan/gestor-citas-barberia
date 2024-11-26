@@ -2,7 +2,7 @@
 
 import express from 'express';
 import { serviceController } from './dependencies';
-import { validateSchemaData } from '../../middleware';
+import { validateSchemaData } from '../../ztools/middleware';
 import { serviceSchema } from './service-schema';
 
 const serviceRouter = express.Router();
