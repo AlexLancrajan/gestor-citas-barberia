@@ -6,6 +6,7 @@ import { Request, RequestHandler, Response, Router } from "express";
 const googleRouter = Router();
 
 passport.use(GoogleStrategy);
+googleRouter.use(passport.initialize());
 
 googleRouter.get('/',
   passport.authenticate('google', 
@@ -18,16 +19,16 @@ googleRouter.get('/',
 googleRouter.get('/callback',
   passport.authenticate('google',
     {
-      failureRedirect: '/login'
+      failureRedirect: '/login',
+      session: false,
     }
   ) as RequestHandler,
   (req: Request, res: Response) => {
-    if(req.user) {
+    if(req.user){
       return res.json(req.user);
     }
-    return res.status(400).json({ error: 'User does not exist.'});
+    return res.status(400).json({ error: 'No user found' });
   }
 );
 
 export { googleRouter };
-
