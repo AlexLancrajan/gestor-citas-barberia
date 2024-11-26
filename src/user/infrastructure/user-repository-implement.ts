@@ -160,7 +160,12 @@ export class mySQLUserRepository implements UserRepository {
   }
 
   async modifyUser(userId: string, modifiedUser: Partial<UserRegModFields>): Promise<UserNoHashField> {
-    const foundUser = await mySQLUser.findByPk(userId);
+    const foundUser = await mySQLUser.findByPk(userId, {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      }
+    }
+    );
     if (!foundUser) {
       throw new Error('Could not find the user.');
     }
@@ -191,8 +196,7 @@ export class mySQLUserRepository implements UserRepository {
       throw new Error('Could not find the modified user.');
     }
   
-    const userNoHash: UserNoHashField = updatedUser.toJSON();
-    return userNoHash;
+    return updatedUser.toJSON();
   }
   
 

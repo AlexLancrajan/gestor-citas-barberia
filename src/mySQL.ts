@@ -136,9 +136,9 @@ const mySQLBarber = sequelize.define(
   'Barber',
   {
     barberId: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
       primaryKey: true,
+      defaultValue: UUIDV4,
     },
     barberName: {
       type: DataTypes.STRING(30),
@@ -154,6 +154,7 @@ const mySQLBarber = sequelize.define(
     },
     barberDescription: {
       type: DataTypes.STRING(1024),
+      allowNull: false,
     },
     siteIdRef: {
       type: DataTypes.INTEGER,
