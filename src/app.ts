@@ -9,7 +9,7 @@ import { userRouter } from './user/infrastructure/user-router';
 import { googleRouter } from './zsign-up-strategies/google-sign-up';
 import { siteRouter } from './site/infrastructure/site-router';
 import { barberRouter } from './barber/infrastructure/barber-router';
-// import { serviceRouter } from './service/infrastructure/service-router';
+import { serviceRouter } from './service/infrastructure/service-router';
 // import { bookingRouter } from './booking/infrastructure/booking-router';
 // import { appointmentRouter } from './date/infrastructure/appointment-router';
 import cookieParser from 'cookie-parser';
@@ -25,7 +25,7 @@ app.use('/api/users', userRouter);
 app.use('/api/google', googleRouter);
 app.use('/api/sites', siteRouter);
 app.use('/api/barbers', barberRouter);
-// app.use('/api/services', serviceRouter);
+app.use('/api/services', serviceRouter);
 // app.use('/api/bookings', bookingRouter);
 // app.use('/api/appointments', appointmentRouter);
 

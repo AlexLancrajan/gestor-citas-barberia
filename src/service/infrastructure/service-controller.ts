@@ -2,13 +2,10 @@ import { CreateService } from "../application/create-service";
 import { DeleteService } from "../application/delete-service";
 import { FindService } from "../application/find-service";
 import { ModifyService } from "../application/modify-service";
-import { UserForToken } from "../../user/domain/user";
-import { ServiceSchema } from "./service-schema";
+import { Roles } from "../../user/domain/user";
+import { ServiceModificationSchema, ServiceSchema } from "./service-schema";
 
 import { Request, Response } from "express";
-import jwt from 'jsonwebtoken';
-import options from "../../ztools/config";
-
 
 export class ServiceController {
   constructor(
@@ -19,18 +16,10 @@ export class ServiceController {
   ) { }
 
   async findServiceFunction(req: Request, res: Response) {
-    const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-    if(!decodedToken) return res.status(401).json({ error: 'Unauthorized access.' });
-
-    const id = Number(req.params.id);
+    const serviceId = Number(req.params.id);
     try {
-      if(decodedToken.role === 'admin') {
-        const service = await this.findService.runGetService(id);
+        const service = await this.findService.runGetService(serviceId);
         return res.json(service);
-      } else {
-        const service = await this.findService.runGetService(id);
-        return res.json(service);
-      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
@@ -41,17 +30,11 @@ export class ServiceController {
   }
 
   async findServicesFunction(req: Request, res: Response) {
-    const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-    if(!decodedToken) return res.status(401).json({ error: 'Unauthorized access.' });
-
+    const page = Number(req.query.page) || 0;
+    const pageSize = Number(req.query.pageSize) || 50;
     try {
-      if(decodedToken.role === 'admin') {
-        const service = await this.findService.runGetServices();
+        const service = await this.findService.runGetServices(page, pageSize);
         return res.json(service);
-      } else {
-        const service = await this.findService.runGetServicesForUsers();
-        return res.json(service);
-      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
@@ -59,19 +42,18 @@ export class ServiceController {
         return res.status(500).json({ error: 'Internal Server Error.' });
       }
     }
-
   }
 
   async createServiceFunction(req: Request, res: Response) {
-    const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-    if (decodedToken.role !== 'admin') {
+    const role = req.userToken?.role.toString().toLowerCase();
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
     const serviceFieldsNoId = req.body as ServiceSchema;
     try {
-      const createdUser = await this.createService.run(serviceFieldsNoId);
-      return res.json(createdUser);
+      const createdService = await this.createService.run(serviceFieldsNoId);
+      return res.json(createdService);
     } catch (error) {
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
@@ -82,13 +64,13 @@ export class ServiceController {
   }
 
   async modifyServiceFunction(req: Request, res: Response) {
-    const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-    if (decodedToken.role !== 'admin') {
+    const role = req.userToken?.role.toString().toLowerCase();
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
     const serviceId = Number(req.params.id);
-    const modifiedService = req.body as Partial<ServiceSchema>;
+    const modifiedService = req.body as ServiceModificationSchema;
     try {
       const newService = await this.modifyService.run(serviceId, modifiedService);
       return res.json(newService);
@@ -102,8 +84,8 @@ export class ServiceController {
   }
 
   async deleteServiceFunction(req: Request, res: Response) {
-    const decodedToken = jwt.verify(req.params.token, options.ACCESS_TOKEN_SECRET as jwt.Secret) as UserForToken;
-    if (decodedToken.role !== 'admin') {
+    const role = req.userToken?.role.toString().toLowerCase();
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 

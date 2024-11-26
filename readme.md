@@ -201,6 +201,51 @@ En este apartado se describe la implementación del concepto de barbero.
     - Se necesita permisos de admin. Sino devuelve error con código *401*-
     - En caso negativo devuelve error con código *404* ó *500*.
 
+### SERVICIO:
+
+En este apartado se describira la implementación del concepto de servicio asociado a la API.
+
+#### MODELO:
+
+  ```json
+  {
+    "serviceId": 134,
+    "serviceType": "Trenzas",
+    "servicePrice": 32.45, 
+    "serviceDuration": "00:30:00",
+    "serviceDescription":"En este servicio hacemos trenzas de esta manera ...",
+  }
+  ```
+
+#### RUTAS:
+
+1. **[GET] FIND SERVICE:** */api/services/:id*. Esta ruta devuelve un servicio basado en su id.
+2. **[GET] FIND SERVICES:** */api/services*. Esta ruta devuelve todos los sitios. Acepta queries de paginado (*/?page=int&pageSize=int*). Por defecto devuelve los primeros 50 resultados.
+3. **[POST] CREATE SERVICE:** */api/services*. En esta ruta se crea un servicio. Necesita rol de admin.
+4. **[PUT] CREATE SERVICE:** */api/services/:id*. En esta ruta se modifica un servicio por id. Necesita rol de admin.
+5. **[DELETE] CREATE SERVICE:** */api/services/:id*. En esta ruta se elimina un servicio por id. Necesita rol de admin.
+
+#### CONTROLADORES:
+
+1. **findServiceFunction** asociado a *(1)* de rutas:
+    - Devuelve un servicio buscado por id. El formato es el mismo del modelo.
+    - En caso negativo devuelve error con código *404* ó *500*.
+2. **findServicesFunction** asociado a *(2)* de rutas:
+    - Devuelve una lista de servicios dependiendo del los parámetros pasados por la query de la ruta. Por defecto los primeros 50 resultados.
+    - En caso negativo devuelve error con código *404* ó *500*.
+3. **createServiceFunction** asociado a *(3)* de rutas:
+    - Crea un servicio utilizando el esquema del modelo sin la id. Son obligatorios todos los campos.
+    - Se necesita permisos de admin. Sino devuelve error con código *401*-
+    - En caso negativo devuelve error con código *400* ó *500*.
+4. **modifyServiceFunction** asociado a *(4)* de rutas:
+    - Modifica un servicio utilizando el esquema del modelo sin la id. Los campos pasados son *opcionales* y en caso de no modificar nada se mantiene el servicio original.
+    - Se necesita permisos de admin. Sino devuelve error con código *401*-
+    - En caso negativo devuelve error con código *400* ó *500*.
+5. **deleteServiceFunction** asociado a *(5)* de rutas:
+    - Elimina un servicio pasandole por parámetros su id asociada.
+    - Se necesita permisos de admin. Sino devuelve error con código *401*-
+    - En caso negativo devuelve error con código *404* ó *500*.
+
 ## PREGUNTAS SOBRE EL PROYECTO O CONTACTO:
 
 Tengo el email adjunto al perfil de github.

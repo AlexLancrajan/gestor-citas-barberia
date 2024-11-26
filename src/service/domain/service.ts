@@ -5,35 +5,13 @@
  * On retrieving from DB the DBFields.
  */
 
-import { BookingFields } from "../../booking/domain/booking";
-import { SiteFields } from "../../site/domain/site";
-
 export interface ServiceInputFields {
   serviceType: string,
   servicePrice: number,
   serviceDuration: Date,
   serviceDescription: string,
-  siteId: number
 }
 
-export interface ServiceFields {
+export interface ServiceFields extends ServiceInputFields{
   serviceId: number,
-  serviceType: string,
-  servicePrice: number,
-  serviceDuration: Date,
-  serviceDescription: string,
-}
-
-export interface ServiceDBFields {
-  serviceId: number,
-  serviceType: string,
-  servicePrice: number,
-  serviceDuration: Date,
-  serviceDescription: string,
-  bookingRef: BookingFields[],
-  siteRef: SiteFields[]
-}
-
-export class Service {
-  constructor(readonly serviceFields: ServiceDBFields) { }
 }

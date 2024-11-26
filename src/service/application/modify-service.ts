@@ -1,10 +1,10 @@
-import { Service, ServiceInputFields } from "../domain/service";
+import { ServiceFields, ServiceInputFields } from "../domain/service";
 import { ServiceRepository } from "../domain/service-repository";
 
 export class ModifyService {
   constructor(private readonly serviceRepository: ServiceRepository) { }
 
-  async run(serviceId: number, serviceInputFields: Partial<ServiceInputFields>): Promise<Service> {
+  async run(serviceId: number, serviceInputFields: Partial<ServiceInputFields>): Promise<ServiceFields> {
     try {
       const modifiedServices = await this.serviceRepository.modifyService(serviceId, serviceInputFields);
       return modifiedServices;
