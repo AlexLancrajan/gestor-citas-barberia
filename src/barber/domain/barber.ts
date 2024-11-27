@@ -1,3 +1,5 @@
+import { SiteFields } from "../../site/domain/site";
+
 export interface BarberInputFields {
   barberName: string,
   barberSurname: string,
@@ -8,4 +10,5 @@ export interface BarberInputFields {
 
 export interface BarberFields extends Partial<BarberInputFields> {
   barberId: string,
+  siteRef?: SiteFields,
 }

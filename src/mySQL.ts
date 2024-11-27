@@ -227,7 +227,6 @@ const mySQLDate = sequelize.define(
     dateAvailability: {
       type: DataTypes.ENUM(
         Availability.available.toString(),
-        Availability.highlyOccupied.toString(),
         Availability.full.toString()
       ),
       allowNull: false

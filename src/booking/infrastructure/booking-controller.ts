@@ -6,7 +6,7 @@ import { UserForToken } from "../../user/domain/user";
 import { Availability } from "../domain/booking";
 import { BookingSchema } from "./booking-schema";
 import { checkAppointment, modifyAppointment } from "../../date/infrastructure/dependencies";
-import { AppointmentInputFields } from "../../date/domain/appointment";
+import { AppointmentInputFields } from "../../date/domain/date";
 import options from "../../ztools/config";
 
 import { Request, Response } from "express";

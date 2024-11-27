@@ -1,28 +1,24 @@
-import { CheckAppointment } from '../application/check-appointment';
-import { CreateAppointment } from '../application/create-appointment';
-import { DeleteAppointment } from '../application/delete-appointment';
-import { FindAppointment } from '../application/find-appointment';
-import { ModifyAppointment } from '../application/modify-appointment';
-import { AppointmentController } from './appointment-controller';
-import { mySQLDateRepository } from "./appointment-repository-implement";
+import { CreateDate } from '../application/create-date';
+import { DeleteDate } from '../application/delete-date';
+import { FindDate } from '../application/find-date';
+import { ModifyDate } from '../application/modify-date';
+import { DateController } from './date-controller';
+import { mySQLDateRepository } from "./date-repository-impl";
 
 
-const appointmentRepository = new mySQLDateRepository();
+const dateRepository = new mySQLDateRepository();
 
-const findAppointment = new FindAppointment(appointmentRepository);
+const findDate = new FindDate(dateRepository);
 
-const createAppointment = new CreateAppointment(appointmentRepository);
+const createDate = new CreateDate(dateRepository);
 
-export const checkAppointment = new CheckAppointment(appointmentRepository);
+export const modifyDate = new ModifyDate(dateRepository);
 
-export const modifyAppointment = new ModifyAppointment(appointmentRepository);
+const deleteDate = new DeleteDate(dateRepository);
 
-const deleteAppointment = new DeleteAppointment(appointmentRepository);
-
-export const appointmentController = new AppointmentController(
-  findAppointment,
-  createAppointment,
-  checkAppointment,
-  modifyAppointment,
-  deleteAppointment
+export const dateController = new DateController(
+  findDate,
+  createDate,
+  modifyDate,
+  deleteDate
 );

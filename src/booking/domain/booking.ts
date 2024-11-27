@@ -4,6 +4,8 @@ import { UserFields } from "../../user/domain/user";
 
 export enum Availability {
   available,
+  lowOccupied,
+  mediumOccupied,
   highlyOccupied,
   full
 }

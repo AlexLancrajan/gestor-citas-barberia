@@ -18,7 +18,7 @@ export class BarberController {
 
   async findBarberFunction(req: Request, res: Response) {
     const barberId = req.params.id;
-    const getSite = Boolean(req.query.getSite) || false;
+    const getSite = Boolean(req.query.getSite?.toString().toLowerCase()) || false;
 
     try {
       const barber = await this.findBarber.runFindBarber(barberId, getSite);
@@ -36,7 +36,7 @@ export class BarberController {
     const siteIdRef = Number(req.query.siteIdRef) || -1;
     const page = Number(req.query.page) || 0;
     const pageSize = Number(req.query.pageSize) || 50;
-    const getSites = Boolean(req.query.getSites) || false;
+    const getSites = Boolean(req.query.getSites?.toString().toLowerCase()) || false;
 
     try {
       const barbers = await this.findBarber.runFindBarbers(siteIdRef, page, pageSize, getSites);
