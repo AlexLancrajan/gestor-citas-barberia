@@ -1,0 +1,11 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mysql_db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: TEST1
+    # (this is just an example, not intended to be a production configuration)
