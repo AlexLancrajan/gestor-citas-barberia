@@ -1,13 +1,51 @@
-import { Booking, BookingInputFields } from "./booking";
+import { BookingFields, BookingInputFields } from "./booking";
+
+export interface BookingQueryParams {
+  bookingDate?: Date,
+  bookingUserId?: number,
+  bookingSiteId?: number,
+  bookingServiceId?: number,
+  getUsers?: boolean,
+  getSites?: boolean,
+  getServices?: boolean,
+  page?: number,
+  pageSize?: number,
+}
+
 
 export interface BookingRepository {
-  getBooking(bookingId: number): Promise<Booking | null>;
+  getBooking(
+    bookingId: number,
+    getUser: boolean,
+    getSite: boolean,
+    getService: boolean
+  ): Promise<BookingFields | null>;
 
-  getBookings(): Promise<Booking[] | null>;
+  getBookingsForAdmin(
+    bookingQuery: BookingQueryParams
+  ): Promise<BookingFields[] | null>;
 
-  createBooking(bookingInputFields: BookingInputFields): Promise<Booking | null>;
+  getBookingsForUser(
+    bookingUserId: number,
+    page: number,
+    pageSize: number,
+    getUser: boolean,
+    getSite: boolean,
+    getService: boolean
+  ): Promise<BookingFields[] | null>;
 
-  modifyBooking(bookingId: number, bookingInputFields: Partial<BookingInputFields>): Promise<Booking>;
+  createBookingNoPayment(
+    bookingInputFields: BookingInputFields
+  ): Promise<BookingFields>;
+
+  createBookingWithPayment(
+    bookingInputFields: BookingInputFields
+  ): Promise<BookingFields>;
+
+  modifyBooking(
+    bookingId: number,
+    bookingInputFields: Partial<BookingInputFields>
+  ): Promise<BookingFields>;
 
   deleteBooking(bookingId: number): Promise<number>;
 }

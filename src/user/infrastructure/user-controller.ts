@@ -33,7 +33,7 @@ export class UserController {
     omit(body, 'password');
 
     const newUser: UserFields = 
-    {passwordHash: passwordHash, ...noPassBody};
+    {passwordHash: passwordHash, ...noPassBody, missingTrack: 0};
 
     try {
       const registeredUser = await this.registerUser.run(newUser);
@@ -83,7 +83,8 @@ export class UserController {
         const userForToken = {
           userId: user.userId,
           username: user.username,
-          role: user.role
+          role: user.role,
+          missingTrack: user.missingTrack
         };
   
         const ACCESS_TOKEN = jwt.sign(userForToken, options.ACCESS_TOKEN_SECRET, { expiresIn: '20s' });

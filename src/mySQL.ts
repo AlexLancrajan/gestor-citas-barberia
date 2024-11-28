@@ -257,8 +257,8 @@ const mySQLBooking = sequelize.define(
   'Booking',
   {
     bookingId: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: UUIDV4,
       primaryKey: true
     },
     bookingDate: {
@@ -270,13 +270,11 @@ const mySQLBooking = sequelize.define(
       type: DataTypes.STRING
     },
     bookingTransactionId: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true
+      type: DataTypes.STRING,
+      unique: true,
     },
     bookingPaymentDate: {
       type: DataTypes.DATE,
-      allowNull: false,
     },
     bookingPrice: {
       type: DataTypes.DECIMAL(5,2)
@@ -303,6 +301,9 @@ const mySQLBooking = sequelize.define(
       }
     },
   },
+  {
+    timestamps: false
+  }
 );
 
 /**

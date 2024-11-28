@@ -14,30 +14,17 @@ export interface BookingInputFields {
   bookingDate: Date,
   bookingAvailability: Availability,
   bookingAnnotations?: string,
-  userId: number,
-  serviceId: number,
-  siteId: number,
-  appointmentId: number,
-  paymentId: number
+  bookingTransactionId?: string,
+  bookingPaymentDate?: Date,
+  bookingPrice?: number,
+  userIdRef: number,
+  siteIdRef: number,
+  serviceIdRef: number,
 }
 
-export interface BookingFields {
+export interface BookingFields extends BookingInputFields {
   bookingId: number,
-  bookingDate: Date,
-  bookingAvailability: Availability,
-  bookingAnnotations?: string,
-}
-
-export interface BookingDBFields {
-  bookingId: number,
-  bookingDate: Date,
-  bookingDisponibility: Availability,
-  bookingAnnotations?: string,
-  userRef: UserFields,
-  serviceRef: ServiceFields,
-  siteRef: SiteFields,
-}
-
-export class Booking {
-  constructor(readonly bookingFields: BookingDBFields) { }
+  userRef?: UserFields,
+  siteRef?: SiteFields,
+  serviceRef?: ServiceFields,
 }

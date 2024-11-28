@@ -74,3 +74,22 @@ export const cleanScheduleFunction = (schedule: ScheduleFields[]) => {
 
   return cleanedSchedule;
 };
+
+export const checkTimeRemaining = (dateToCheck: Date, timeLimit: Date) => {
+  const acutalDate = new Date(Date.now());
+  if(!timeLimit.getHours()) {
+    if(Math.abs(dateToCheck.getMinutes()-acutalDate.getMinutes())
+      <= timeLimit.getMinutes())
+      return false;
+    else 
+      return true;
+  } else {
+    if(Math.abs(
+      dateToCheck.getHours() * 60 + dateToCheck.getMinutes()
+      - acutalDate.getHours() * 60 + acutalDate.getMinutes())
+      <= timeLimit.getHours() * 60 + timeLimit.getMinutes())
+      return false;
+    else 
+      return true;
+  }
+};

@@ -8,7 +8,7 @@ import { mySQLDateRepository } from "./date-repository-impl";
 
 const dateRepository = new mySQLDateRepository();
 
-const findDate = new FindDate(dateRepository);
+export const findDate = new FindDate(dateRepository);
 
 const createDate = new CreateDate(dateRepository);
 

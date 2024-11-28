@@ -28,7 +28,7 @@ export interface UserFields {
   name?: string,
   surname?: string,
   role: Roles,
-  missingTrack?: number,
+  missingTrack: number,
 }
 
 export interface UserRegModFields {
@@ -50,7 +50,8 @@ export interface UserLoginFields {
 export interface UserForToken {
   username: string,
   userId: string,
-  role: Roles
+  role: Roles,
+  missingTrack: number,
 }
 
 export type UserNoHashField = Omit<UserFields, 'passwordHash'>;

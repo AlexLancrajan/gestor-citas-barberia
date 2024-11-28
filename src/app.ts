@@ -11,8 +11,9 @@ import { siteRouter } from './site/infrastructure/site-router';
 import { barberRouter } from './barber/infrastructure/barber-router';
 import { serviceRouter } from './service/infrastructure/service-router';
 import { dateRouter } from './date/infrastructure/date-router';
-// import { bookingRouter } from './booking/infrastructure/booking-router';
+import { bookingRouter } from './booking/infrastructure/booking-router';
 import cookieParser from 'cookie-parser';
+import { verifyTokenMiddleware } from './ztools/middleware';
 
 const app = express();
 
@@ -27,10 +28,7 @@ app.use('/api/sites', siteRouter);
 app.use('/api/barbers', barberRouter);
 app.use('/api/services', serviceRouter);
 app.use('/api/dates', dateRouter);
-// app.use('/api/bookings', bookingRouter);
-
-
-
+app.use('/api/bookings', verifyTokenMiddleware, bookingRouter);
 //Error Handler.
 
 export { app };
