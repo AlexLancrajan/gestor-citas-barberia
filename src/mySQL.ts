@@ -15,7 +15,8 @@ const sequelize = new Sequelize(
     logging: (msg, executionTime) => {
       const time = (typeof executionTime === 'number') ? executionTime : 'unknown';
       console.log(`Query executed in ${time}ms: ${msg}`);
-    }
+    },
+    benchmark: true,
   }
 );
 
