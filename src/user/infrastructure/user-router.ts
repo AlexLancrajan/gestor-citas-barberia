@@ -26,12 +26,6 @@ userRouter.post(
 );
 
 userRouter.get(
-  '/logout',
-  verifyTokenMiddleware,
-  userController.logoutFunction.bind(userController)
-);
-
-userRouter.get(
   '/refresh',
   userController.refreshUserFunctionality.bind(userController)
 );

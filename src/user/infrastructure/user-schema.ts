@@ -44,7 +44,7 @@ export const userModificationsSchema = z.object({
   surname: z.string().trim().optional(),
   role: z.nativeEnum(Roles).optional(),
   missingTrack: z.number().optional(),
-});
+}).strict();
 
 export type UserGoogleRegistrationSchema = z.infer<typeof userGoogleRegistrationSchema>;
 export type UserRegistrationSchema = z.infer<typeof userRegistrationSchema>;

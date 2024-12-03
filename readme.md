@@ -25,7 +25,6 @@ El directorio del proyecto se organiza de la siguiente manera:
 |-- schema_images
 |-- src
 |   |-- app.ts
-|   |-- index.ts
 |   |-- mySQL.ts
 |   |-- barber
 |   |   |-- application
@@ -157,16 +156,14 @@ En este apartado se describirá el modelo, las rutas y controladores asociados a
     - En esta ruta se harán los logins asociados al propio sistema.
 3. **[GET] REFRESH TOKEN**: ***/api/users/refresh*** 
     - En esta ruta se actualizará el token access en función del token refresh
-4. **[POST] LOGOUT USER**: ***/api/users/logout*** 
-    - En esta ruta se hará el logout.
-5. **[GET] FIND USER**: ***/api/users/:id*** 
+4. **[GET] FIND USER**: ***/api/users/:id*** 
     - En esta ruta se buscará a un usuario particular.
-6. **[GET] FIND USERS**: ***/api/users/*** 
+5. **[GET] FIND USERS**: ***/api/users/*** 
     - En esta ruta se buscarán a todos los usuarios, se pueden usar queries para filtrar (*/?**role=Rol**&**page=int**&**pageSize=int***). 
     - Por defecto devuelve los primeros 50 resultados del rol usuario. Se necesita permisos de admin.
-7. **[DELETE] DELETE USER**: ***/api/users/:id*** 
+6. **[DELETE] DELETE USER**: ***/api/users/:id*** 
     - En esta ruta se borrará a un usuario.
-8. **[PUT] MODIFY USER**: ***/api/users/:id*** 
+7. **[PUT] MODIFY USER**: ***/api/users/:id*** 
     - En esta ruta se actualizará un usuario.
 
 *Notas*: 

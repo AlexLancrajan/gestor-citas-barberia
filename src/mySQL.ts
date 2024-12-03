@@ -13,7 +13,8 @@ const sequelize = new Sequelize(
     host: options.databaseHost,
     dialect: isDialectType(options.databaseDialect) ? options.databaseDialect : 'mysql',
     logging: (msg, executionTime) => {
-      console.log(`Query executed in ${executionTime || 'unknown'}ms: ${msg}`);
+      const time = (typeof executionTime === 'number') ? executionTime : 'unknown';
+      console.log(`Query executed in ${time}ms: ${msg}`);
     }
   }
 );
@@ -349,7 +350,7 @@ mySQLSite.belongsToMany(mySQLService,
 //Init the model. If the mode is DEBUG, it will perform a database reset, so be careful which database you choose.
 export const initSQLModels = async () => {
   try {
-    if(process.env.DEV_MODE) {
+    if(process.env.NODE_ENV) {
       await sequelize.drop();
     }
     await sequelize.sync();

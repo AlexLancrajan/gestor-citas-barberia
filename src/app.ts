@@ -4,7 +4,10 @@ import cors from 'cors';
 
 //Create and initialize database.
 import { initSQLModels } from './mySQL';
-initSQLModels().catch(console.error);
+
+void (async () => {
+  await initSQLModels().catch(console.error);
+}) ();
 
 //Routes for the application.
 import { userRouter } from './user/infrastructure/user-router';
@@ -25,7 +28,7 @@ const MODE = process.env.NODE_ENV ? 'dev' : 'tiny';
 app.use(morgan(MODE));
 
 //Middlewares.
-if(process.env.DEV_MODE) {
+if(process.env.NODE_ENV) {
   app.use(cors());
 } else {
   app.use(cors(
@@ -48,4 +51,6 @@ app.use('/api/bookings', verifyTokenMiddleware, bookingRouter);
 
 //Error Handler.
 
-export { app };
+app.listen(options.port, () => {
+  console.log(`Server is listening on PORT ${options.port}`);
+});

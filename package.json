@@ -1,11 +1,11 @@
 {
   "name": "gestor-citas-barberia",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development && tsnd --respawn --clear src/index.ts",
+    "dev": "cross-env NODE_ENV=development tsnd --respawn --clear src/app.ts",
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node dist/index.js"
+    "start": "npm run build && node dist/app.js"
   },
   "keywords": [],
   "author": "",

@@ -94,7 +94,8 @@ export class UserController {
         .header('authorization', ACCESS_TOKEN)
         .cookie('refresh', REFRESH_TOKEN, {
           httpOnly: true,
-          sameSite: process.env.DEV_MODE ? 'none' : 'strict', secure: process.env.DEV_MODE ? false : true,
+          sameSite: process.env.NODE_ENV ? 'none' : 'strict', 
+          secure: process.env.NODE_ENV ? false : true,
           maxAge: 24 * 60 * 60 * 1000
         }).json({ status: 'user logged' });
       }
@@ -106,22 +107,6 @@ export class UserController {
     }
   }
 
-  logoutFunction(req: Request, res: Response) {
-    try {
-      if(req.headers['authorization']){
-        req.headers['authorization'].split(' ')[1] = '';
-        return res.json({ status: 'Logged out succesfully'});
-      }
-      return;
-    } catch (error) {
-      if(error instanceof Error) {
-        return res.status(400).json({ error: error.message });
-      } else {
-        return res.status(500).json({ error: 'internal server error' });
-      }
-    }
-  }
-
   refreshUserFunctionality(req: Request, res: Response) {
     const refreshToken = req.cookies['refresh'] as string;
     if(!refreshToken)
@@ -129,14 +114,16 @@ export class UserController {
 
     try {
       const decodedToken: UserForToken = jwt.verify(refreshToken, options.REFRESH_TOKEN_SECRET) as UserForToken;
-      const { userId, username, role } = decodedToken;
+      const { userId, username, role, missingTrack } = decodedToken;
       const accessToken = jwt.sign(
         { userId: userId, 
           username: username,
-          role: role }, 
+          role: role,
+          missingTrack: missingTrack 
+        }, 
         options.ACCESS_TOKEN_SECRET,
         {
-          expiresIn: '20s'
+          expiresIn: '5m'
         }
       );
       return res
@@ -176,32 +163,31 @@ export class UserController {
     const params = {
       role: Object.values(Roles).find(role => role === qRole) || undefined,
       missingTrack: Number(req.query.missingTrack) || 0,
-      page: Number(req.query.page) || 50,
-      pageSize: Number(req.query.pageSize) || 0,
+      page: Number(req.query.page) || 0,
+      pageSize: Number(req.query.pageSize) || 50,
     };
 
-    const offset = params.page * params.pageSize;
     try {
       if(params.role){
         const users = 
         await this.findUser.runFindUsersByRole(
           params.role,
+          params.page,
           params.pageSize,
-          offset
         );
         return res.json(users);
 
       } else if(params.missingTrack) {
         const users = await this.findUser.runFindUsersByMissingTrack(
           params.missingTrack,
+          params.page,
           params.pageSize,
-          offset,
         );
         return res.json(users);
       } else {
         const users = await this.findUser.runFindUsers(
+          params.page,
           params.pageSize,
-          offset,
         );
         return res.json(users);
       }
@@ -218,7 +204,7 @@ export class UserController {
     const pRole = req.userToken?.role.toString().toLowerCase();
     const role = Object.values(Roles).find(role => role.toString() === pRole);
 
-    if (req.userToken?.userId !== id || 
+    if (req.userToken?.userId !== id && 
       role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
