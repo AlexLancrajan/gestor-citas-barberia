@@ -2,6 +2,7 @@ import { UUIDV4 } from "sequelize";
 import { Availability } from "./booking/domain/booking";
 import options from "./ztools/config";
 import { Sequelize, DataTypes } from "sequelize";
+import { isDialectType } from "./ztools/utils";
 
 // Create an instance of Sequelize connection with mySQL setup.
 const sequelize = new Sequelize(
@@ -9,8 +10,11 @@ const sequelize = new Sequelize(
   options.databaseUser,
   options.databasePassword,
   {
-    host: 'localhost',
-    dialect: 'mysql'
+    host: options.databaseHost,
+    dialect: isDialectType(options.databaseDialect) ? options.databaseDialect : 'mysql',
+    logging: (msg, executionTime) => {
+      console.log(`Query executed in ${executionTime || 'unknown'}ms: ${msg}`);
+    }
   }
 );
 
@@ -342,10 +346,12 @@ mySQLSite.belongsToMany(mySQLService,
   }
 );
 
-//Init the model in debug mode.
+//Init the model. If the mode is DEBUG, it will perform a database reset, so be careful which database you choose.
 export const initSQLModels = async () => {
   try {
-    await sequelize.drop();
+    if(process.env.DEV_MODE) {
+      await sequelize.drop();
+    }
     await sequelize.sync();
   } catch (error) {
     console.error('Error initializing models:', error);

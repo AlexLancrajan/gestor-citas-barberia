@@ -1,4 +1,5 @@
-import { ScheduleFields } from "../date/domain/date";
+import { ScheduleFields } from '../date/domain/date';
+import { Dialect } from 'sequelize';
 
 export const generateDates = (initDate: Date, endDate: Date, minutes: number) => {
   const dateArray: Date[] = [];
@@ -92,4 +93,8 @@ export const checkTimeRemaining = (dateToCheck: Date, timeLimit: Date) => {
     else 
       return true;
   }
+};
+
+export const isDialectType = (input: string): input is Dialect => {
+  return ['mysql', 'postgres', 'sqlite', 'mariadb', 'mssql', 'db2', 'snowflake', 'oracle'].includes(input);
 };

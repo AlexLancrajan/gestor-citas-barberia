@@ -61,7 +61,7 @@ export const GoogleStrategy = new Strategy(
   {
     clientID: options.GOOGLE_CLIENT_ID,
     clientSecret: options.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'api/google/callback',
+    callbackURL: options.GOOGLE_CALLBACK_URL,
   },
 
   (_accessToken, _refreshToken, profile: Profile, done) => {

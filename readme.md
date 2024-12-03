@@ -2,12 +2,11 @@
 
 ## ¿CÓMO FUNCIONA ESTA APLICACIÓN?
 
-Funciona mediante una API REST que se comunica con el servidor en cuestión y una base de datos asociada a través de unas reglas de negocio bien establecidas.
+Se trata de una API de tipo REST en la que se ha aplicado el patrón de diseño MVC
 
-## ¿QUÉ REGLAS DE NEGOCIO EXISTEN EN EL PROYECTO?
+## ¿CÓMO ES LA ORGANIZACIÓN DEL PROYECTO?
 
-A fecha de hoy *15 de Septiembre de 2024* existen las siguientes reglas:
-
+Para esta aplicación se ha empleado la metodología DDD y a fecha de hoy *3 de Diciembre de 2024* existen las siguientes conceptos:
 1. Usuario/*User*.
 2. Barbero/*Barber*.
 3. Local/*Site*.
@@ -15,16 +14,112 @@ A fecha de hoy *15 de Septiembre de 2024* existen las siguientes reglas:
 5. Fecha/*Date*.
 6. Reserva/*Booking*.
 
+El directorio del proyecto se organiza de la siguiente manera:
 
-## ¿QUÉ TIPO DE ARQUITECTURA UTILIZA Y COMO SE ORGANIZAN LAS REGLAS?
+```
+.
+|-- eslint.config.mjs
+|-- package-lock.json
+|-- package.json
+|-- readme.md
+|-- schema_images
+|-- src
+|   |-- app.ts
+|   |-- index.ts
+|   |-- mySQL.ts
+|   |-- barber
+|   |   |-- application
+|   |   |   |-- create-barber.ts
+|   |   |   |-- delete-barber.ts
+|   |   |   |-- find-barber.ts
+|   |   |   `-- modify-barber.ts
+|   |   |-- domain
+|   |   |   |-- barber-repository.ts
+|   |   |   `-- barber.ts
+|   |   `-- infrastructure
+|   |       |-- barber-controller.ts
+|   |       |-- barber-repository-impl.ts
+|   |       |-- barber-router.ts
+|   |       |-- barber-schema.ts
+|   |       `-- dependencies.ts
+|   |-- booking
+|   |-- date
+|   |-- service
+|   |-- site
+|   |-- user
+|   |-- zsign-up-strategies
+|   `-- ztools
+|       |-- config.ts
+|       |-- middleware.ts
+|       |-- stripe-service.ts
+|       `-- utils.ts
+`-- tsconfig.json
+```
 
-El patrón de arquitectura empleado es hexagonal, ya que permite la escalabilidad del proyecto y la mejor organización del cógido. También cabe destacar que se ha hecho *slicing* para separar mejor las distintas capas de cada concepto.  
+
+## ¿QUÉ TIPO DE ARQUITECTURA UTILIZA Y COMO SE RELACIONAN LOS CONCEPTOS?
+
+El patrón de arquitectura empleado es hexagonal, ya que permite la escalabilidad del proyecto y la mejor organización del cógido.  
 
 En cuanto a la organizacion de las reglas se implementa utilizando el siguiente esquema:
 
-![Esquema que muestra la relacion entre las reglas de negocio de la aplicación](/schema_images/Implementation.png "Reglas de negocio")
+![Esquema que muestra la relacion entre las reglas de negocio de la aplicación](/schema_images/Concepts_relations.png "Reglas de negocio")
 
 ## IMPLEMENTACIÓN DEL PROYECTO:
+
+### CONFIGURACIÓN Y VARIABLES DE ENTORNO:
+
+Antes que nada hay que instalar las dependecias del proyecto:
+
+```bash
+  npm install
+```
+Para que el proyecto funcione correctamente hay que configurar las siguentes variables de entorno:
+
+```ini
+  # .env file
+  PORT=3000;
+
+  # For cors configuration in production mode. The format used must be the following:
+  ACCESS_URLS=http://www.example.com,http://www.example2.com,http://www.example3.com,...
+
+  # Token configuration:
+  ACCESS_SECRET="SOMEACCESSSECRET"
+  REFRESH_SECRET="SOMEREFRESHSECRET"
+
+  # Database configuration for mySQL. For other DBMS change dialect, but keep in mind that some data types will be diferent in other DBMS.
+  # In dev mode database will perform a hard reset, so be careful which database you are using. If needed you can define more envs for this aspect.
+  DATABASE_NAME="barberdb"
+  DATABASE_USERNAME="root"
+  DATABASE_PASSWORD="password"
+  DATABASE_HOST="127.0.0.1"
+  DATABASE_DIALECT="mysql"
+
+  # Only if you use google strategy. Otherwise just ignore these lines:
+  # GOOGLE_CLIENT_ID=""
+  # GOOGLE_CLIENT_SECRET=""
+  # GOOGLE_CALLBACK_URL = ""
+
+  # For payment purposes. Method implemented is Stripe, as it is wide used. If the mode is Debug remember to use the test key, otherwise it will not work.
+  STRIPE_SECRET_KEY="sk_test_..."
+```
+*Nota*:
+  - Hay un parametro más que se encuentra en *src/ztools/config.ts*, que es *timeLimit* y se trata de una fecha que establece el tiempo limite para modificar o cancelar una cita por parte del usuario. Su formato es el siguiente:
+
+  ```Typescript
+    timeLimit: new Date(0,0,0,0,30,0,0), // Defaults to 30 min. Can implement hours.
+  ```
+
+Los comandos para ejectuar el proyecto en modo desarrollo y producción son los clásicos:
+
+```bash
+  npm run dev
+  npm start
+```
+
+*Nota*:
+  - En modo desarrollo aprate de hacerse un reset a la base de datos, también se desactivan métodos de seguridad y algunos aspectos más.
+  - El logger usado ("Morgan") tiene más información en este modo.
 
 ### USUARIO:
 
@@ -270,9 +365,9 @@ En este concepto tenemos varios modelos, el fundamental es el siguiente:
   ```json
   {
     "dateId": 134,
-    "dateDate": "Trenzas",
-    "dateAvailability": 32.45, 
-    "dateSiteIdRef": "00:30:00",
+    "dateDate": "2024-12-3T16:00",
+    "dateAvailability": 0, //Availiabilty is an enum that goes from 0 to 4. 0 is empty and 4 is full. The rest are used for info purposes.
+    "dateSiteIdRef": 1,
   }
   ```
 El siguente es el modelo del horario o *schedule*:

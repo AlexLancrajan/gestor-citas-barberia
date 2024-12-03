@@ -87,14 +87,14 @@ export class UserController {
           missingTrack: user.missingTrack
         };
   
-        const ACCESS_TOKEN = jwt.sign(userForToken, options.ACCESS_TOKEN_SECRET, { expiresIn: '20s' });
+        const ACCESS_TOKEN = jwt.sign(userForToken, options.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
         const REFRESH_TOKEN = jwt.sign(userForToken, options.REFRESH_TOKEN_SECRET, { expiresIn: '5h' });
   
         return res
         .header('authorization', ACCESS_TOKEN)
         .cookie('refresh', REFRESH_TOKEN, {
           httpOnly: true,
-          sameSite: 'strict', secure: process.env.mode === 'Production',
+          sameSite: process.env.DEV_MODE ? 'none' : 'strict', secure: process.env.DEV_MODE ? false : true,
           maxAge: 24 * 60 * 60 * 1000
         }).json({ status: 'user logged' });
       }
