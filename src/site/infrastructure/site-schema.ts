@@ -6,7 +6,7 @@ export const siteSchema = z.object({
   siteSchedule: z.string().trim(),
   sitePhone: z.string().trim(),
   siteDescription: z.string().trim(),
-});
+}).strict();
 
 export const siteModificationSchema = z.object({
   siteName: z.string().trim().optional(),
@@ -14,7 +14,7 @@ export const siteModificationSchema = z.object({
   siteSchedule: z.string().trim().optional(),
   sitePhone: z.string().trim().optional(),
   siteDescription: z.string().optional(),
-});
+}).strict();
 
 export type SiteSchema = z.infer<typeof siteSchema>;
 export type SiteModificationSchema = 

@@ -28,8 +28,8 @@ export class mySQLSiteRepository implements SiteRepository {
         attributes: {
           exclude: ['createdAt', 'updatedAt']
         },
-        limit: pageSize || 50,
-        offset: page * pageSize || 0,
+        limit: pageSize,
+        offset: page * pageSize,
       }
     );
 
@@ -71,6 +71,7 @@ export class mySQLSiteRepository implements SiteRepository {
     }
 
     const updatedSite: SiteInputFields = { ...foundSite.toJSON(), ...siteInputFields};
+    console.log(updatedSite);
 
     await mySQLSite.update(updatedSite, { where: { siteId: id }});
 

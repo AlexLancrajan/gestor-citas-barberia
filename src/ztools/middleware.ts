@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken';
 import { z, ZodError } from 'zod';
 import options from './config';
 import { UserForToken } from '../user/domain/user';
-import { Strategy, Profile } from 'passport-google-oauth20';
 
 declare module 'express' {
   interface Request {
@@ -57,23 +56,4 @@ export const verifyTokenMiddleware = (
   }
 };
 
-export const GoogleStrategy = new Strategy(
-  {
-    clientID: options.GOOGLE_CLIENT_ID,
-    clientSecret: options.GOOGLE_CLIENT_SECRET,
-    callbackURL: options.GOOGLE_CALLBACK_URL,
-  },
 
-  (_accessToken, _refreshToken, profile: Profile, done) => {
-    try {
-      const user = {
-        googleId: profile.id,
-        email: profile.emails?.[0].value,
-        name: profile.displayName
-      };
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  }
-);

@@ -14,7 +14,7 @@ export const userGoogleRegistrationSchema = z.object({
   surname: z.string().trim().optional(),
   role: z.nativeEnum(Roles),
   missingTrack: z.number().optional(),
-});
+}).strict();
 
 export const userRegistrationSchema = z.object({
   username: z.string().trim()
@@ -26,12 +26,12 @@ export const userRegistrationSchema = z.object({
   surname: z.string().trim().optional(),
   role: z.nativeEnum(Roles),
   missingTrack: z.number().optional(),
-});
+}).strict();
 
 export const userLoginSchema = z.object({
   username: z.string(),
   password: z.string().regex(passwordRegex),
-});
+}).strict();
 
 export const userModificationsSchema = z.object({
   username: z.string().trim()

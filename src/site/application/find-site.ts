@@ -14,7 +14,7 @@ export class FindSite {
   }
 
   async runGetSites(page: number, pageSize: number): Promise<SiteFields[]> {
-    const sites = await this.runGetSites(page, pageSize);
+    const sites = await this.siteRepository.getSites(page, pageSize);
     if (!sites) throw new Error('Not sites available');
     return sites;
 

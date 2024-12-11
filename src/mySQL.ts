@@ -352,7 +352,7 @@ mySQLSite.belongsToMany(mySQLService,
 export const initSQLModels = async () => {
   try {
     if(process.env.NODE_ENV) {
-      await sequelize.drop();
+      //await sequelize.drop();
     }
     await sequelize.sync();
   } catch (error) {

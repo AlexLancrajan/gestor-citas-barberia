@@ -1,7 +1,28 @@
 import passport from "passport";
-import { GoogleStrategy } from "../ztools/middleware";
-
 import { Request, RequestHandler, Response, Router } from "express";
+import { Strategy, Profile } from 'passport-google-oauth20';
+import options from "../ztools/config";
+
+const GoogleStrategy = new Strategy(
+  {
+    clientID: options.GOOGLE_CLIENT_ID,
+    clientSecret: options.GOOGLE_CLIENT_SECRET,
+    callbackURL: options.GOOGLE_CALLBACK_URL,
+  },
+
+  (_accessToken, _refreshToken, profile: Profile, done) => {
+    try {
+      const user = {
+        googleId: profile.id,
+        email: profile.emails?.[0].value,
+        name: profile.displayName
+      };
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  }
+);
 
 const googleRouter = Router();
 

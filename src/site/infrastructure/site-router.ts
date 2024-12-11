@@ -2,7 +2,7 @@
 import express from 'express';
 import { siteController } from './dependencies';
 import { validateSchemaData, verifyTokenMiddleware } from '../../ztools/middleware';
-import { siteSchema } from './site-schema';
+import { siteModificationSchema, siteSchema } from './site-schema';
 
 const siteRouter = express.Router();
 
@@ -25,7 +25,7 @@ siteRouter.post('/',
 siteRouter.put(
   '/:id', 
   verifyTokenMiddleware,
-  validateSchemaData(siteSchema), 
+  validateSchemaData(siteModificationSchema), 
   siteController.modifySiteFunction.bind(siteController)
 );
 

@@ -40,11 +40,8 @@ export class SiteController {
   }
 
   async findSitesFunction(req: Request, res: Response) {
-    let page = 0, pageSize = 50;
-    if(req.query.page && req.query.pageSize) {
-      page = Number(req.query.page);
-      pageSize = Number(req.query.pageSize);
-    }
+    const page = Number(req.query.page) || 0;
+    const pageSize = Number(req.query.pageSize) || 50;
 
     try {
         const site = await this.findSite.runGetSites(page, pageSize);
@@ -60,7 +57,7 @@ export class SiteController {
 
   async createSiteFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
-    if (!role && role !== Roles.admin) {
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
@@ -79,7 +76,7 @@ export class SiteController {
 
   async modifySiteFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
-    if (!role && role !== Roles.admin) {
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
@@ -87,7 +84,7 @@ export class SiteController {
     const siteFieldsNoId = req.body as SiteModificationSchema;
     try {
       const modifiedSite = await this.modifySite.run(siteId, siteFieldsNoId);
-      return modifiedSite;
+      return res.json(modifiedSite);
     } catch (error) {
       if (error instanceof Error) {
         return res.status(400).json({ error: error.message });
@@ -99,7 +96,7 @@ export class SiteController {
 
   async deleteSiteFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
-    if (!role && role !== Roles.admin) {
+    if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
