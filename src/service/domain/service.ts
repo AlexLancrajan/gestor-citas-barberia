@@ -10,6 +10,7 @@ export interface ServiceInputFields {
   servicePrice: number,
   serviceDuration: Date,
   serviceDescription: string,
+  siteId: number,
 }
 
 export interface ServiceFields extends ServiceInputFields{

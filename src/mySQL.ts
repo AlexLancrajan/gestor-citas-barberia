@@ -193,10 +193,9 @@ const mySQLService = sequelize.define(
     serviceType: {
       type: DataTypes.STRING(60),
       allowNull: false,
-      unique: true
     },
     servicePrice: {
-      type: DataTypes.DECIMAL(3, 2),
+      type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
     },
     serviceDuration: {
@@ -206,6 +205,13 @@ const mySQLService = sequelize.define(
     serviceDescription: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    siteId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: mySQLSite,
+        key: 'siteId'
+      }
     }
   },
 );
@@ -352,7 +358,7 @@ mySQLSite.belongsToMany(mySQLService,
 export const initSQLModels = async () => {
   try {
     if(process.env.NODE_ENV) {
-      //await sequelize.drop();
+      await sequelize.drop();
     }
     await sequelize.sync();
   } catch (error) {

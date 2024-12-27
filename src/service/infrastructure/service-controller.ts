@@ -46,6 +46,7 @@ export class ServiceController {
 
   async createServiceFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
+    console.log(role);
     if (role !== Roles.admin) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }

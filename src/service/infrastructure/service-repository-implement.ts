@@ -34,9 +34,10 @@ export class mySQLServiceRepository implements ServiceRepository {
   async createService(serviceInputFields: ServiceInputFields): Promise<ServiceFields> {
     await mySQLService.create({
       serviceType: serviceInputFields.serviceType,
-      servicePrice: serviceInputFields.serviceType,
-      serviceDuration: serviceInputFields.serviceType,
-      serviceDescription: serviceInputFields.serviceType,
+      servicePrice: serviceInputFields.servicePrice,
+      serviceDuration: serviceInputFields.serviceDuration,
+      serviceDescription: serviceInputFields.serviceDescription,
+      siteId: serviceInputFields.siteId
     });
 
     const newService = await mySQLService.findOne( 
@@ -57,16 +58,22 @@ export class mySQLServiceRepository implements ServiceRepository {
   async modifyService(serviceId: number, modifiedService: Partial<ServiceInputFields>): Promise<ServiceFields> {
     const foundService = await mySQLService.findByPk(serviceId);
     if (!foundService) {
-      throw new Error('Could not find the user.');
+      throw new Error('Could not find the service.');
     }
   
     const updatedUserData: ServiceInputFields = { ...foundService.toJSON(), ...modifiedService };
   
     await mySQLService.update(updatedUserData, { where: { serviceId: serviceId } });
   
-    const updatedService = await mySQLService.findByPk(serviceId);
+    const updatedService = await mySQLService.findByPk(serviceId,
+      {
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
+      }
+    );
     if (!updatedService) {
-      throw new Error('Could not find the modified user.');
+      throw new Error('Could not find the modified service.');
     }
     return updatedService.toJSON();
   }

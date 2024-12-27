@@ -3,7 +3,7 @@
 import express from 'express';
 import { serviceController } from './dependencies';
 import { validateSchemaData, verifyTokenMiddleware } from '../../ztools/middleware';
-import { serviceSchema } from './service-schema';
+import { serviceModificationSchema, serviceSchema } from './service-schema';
 
 const serviceRouter = express.Router();
 
@@ -17,17 +17,21 @@ serviceRouter.get(
   serviceController.findServiceFunction.bind(serviceController)
 );
 
-serviceRouter.post('/', 
+serviceRouter.post(
+  '/', 
+  verifyTokenMiddleware, 
   validateSchemaData(serviceSchema), 
   serviceController.createServiceFunction.bind(serviceController)
 );
 
 serviceRouter.put(
   '/:id', 
-  validateSchemaData(serviceSchema), 
+  verifyTokenMiddleware, 
+  validateSchemaData(serviceModificationSchema), 
   serviceController.modifyServiceFunction.bind(serviceController));
 
-serviceRouter.delete('/:id',
+serviceRouter.delete(
+  '/:id',
   verifyTokenMiddleware, 
   serviceController.deleteServiceFunction.bind(serviceController)
 );
