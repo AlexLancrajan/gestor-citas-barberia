@@ -33,13 +33,13 @@ export class BarberController {
   }
 
   async findBarbersFunction(req: Request, res: Response) {
-    const siteIdRef = Number(req.query.siteIdRef) || -1;
+    const siteId = Number(req.query.siteId) || -1;
     const page = Number(req.query.page) || 0;
     const pageSize = Number(req.query.pageSize) || 50;
     const getSites = Boolean(req.query.getSites?.toString().toLowerCase()) || false;
 
     try {
-      const barbers = await this.findBarber.runFindBarbers(siteIdRef, page, pageSize, getSites);
+      const barbers = await this.findBarber.runFindBarbers(siteId, page, pageSize, getSites);
       return res.json(barbers);
     } catch (error: unknown) {
       if(error instanceof Error) {
@@ -59,7 +59,7 @@ export class BarberController {
     const barberInputFields = req.body as BarberInputSchema;
     try {
       const createdBarber = await this.createBarber.run(barberInputFields);
-      return createdBarber;
+      return res.json(createdBarber);
     } catch (error: unknown) {
       if(error instanceof Error) {
         return res.status(400).json({ error: error.message });
@@ -81,10 +81,10 @@ export class BarberController {
       if(role === Roles.barber) {
         const newBarberInputFields = omit(barberInputFields, 'siteIdRef');
         const createdBarber = await this.modifyBarber.run(barberId, newBarberInputFields);
-        return createdBarber;
+        return res.json(createdBarber);
       } else {
         const createdBarber = await this.modifyBarber.run(barberId, barberInputFields);
-        return createdBarber;
+        return res.json(createdBarber);
       }
 
     } catch (error: unknown) {

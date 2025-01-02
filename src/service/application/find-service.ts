@@ -11,8 +11,8 @@ export class FindService {
     else return service;
   }
 
-  async runGetServices(page: number, pageSize: number): Promise<ServiceFields[]> {
-    const services = await this.serviceRepository.getServices(page, pageSize);
+  async runGetServices(siteId: number | undefined, page: number, pageSize: number): Promise<ServiceFields[]> {
+    const services = await this.serviceRepository.getServices(siteId, page, pageSize);
     if (!services) throw new Error('Services list is empty.');
     else return services;
   }

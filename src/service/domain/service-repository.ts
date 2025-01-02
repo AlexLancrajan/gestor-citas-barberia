@@ -8,7 +8,7 @@ import { ServiceFields, ServiceInputFields } from "./service";
 export interface ServiceRepository {
   getService(serviceId: number): Promise<ServiceFields | null>;
 
-  getServices(page:number, pageSize: number): Promise<ServiceFields[] | null>;
+  getServices(siteId:number|undefined, page:number, pageSize: number): Promise<ServiceFields[] | null>;
 
   createService(serviceInputFields: ServiceInputFields): Promise<ServiceFields>;
 

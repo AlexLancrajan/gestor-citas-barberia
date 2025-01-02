@@ -32,9 +32,10 @@ export class ServiceController {
   async findServicesFunction(req: Request, res: Response) {
     const page = Number(req.query.page) || 0;
     const pageSize = Number(req.query.pageSize) || 50;
+    const siteId = Number(req.query.siteId) || undefined;
     try {
-        const service = await this.findService.runGetServices(page, pageSize);
-        return res.json(service);
+      const service = await this.findService.runGetServices(siteId, page, pageSize);
+      return res.json(service);
     } catch (error: unknown) {
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });

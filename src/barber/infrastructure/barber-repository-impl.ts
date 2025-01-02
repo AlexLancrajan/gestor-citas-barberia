@@ -11,10 +11,15 @@ export class mySQLBarberRepository implements BarberRepository{
       mySQLBarber.findByPk(
         barberId, 
         {
-          attributes: {
-            exclude: ['createdAt','updatedAt']
+          include: {
+            model: mySQLSite,
+            attributes: {
+              exclude: ['createdAt','updatedAt']
+            }
           },
-          include: [mySQLSite]
+          attributes: {
+            exclude: ['siteId','createdAt','updatedAt']
+          },
         }
       );
 
@@ -37,17 +42,20 @@ export class mySQLBarberRepository implements BarberRepository{
   }
 
   async getBarbers(
-    siteIdRef: number = -1, 
+    siteId: number = -1, 
     page: number = 0, 
     pageSize: number = 50,
     getSites: boolean = false
   ): 
   Promise<BarberFields[] | null> {
-    if(siteIdRef === -1) {
+    if(siteId === -1 && !getSites) {
       const barbers = await mySQLBarber.findAll(
         {
           limit: pageSize,
-          offset: page * pageSize
+          offset: page * pageSize,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          }
         }
       );
 
@@ -56,14 +64,16 @@ export class mySQLBarberRepository implements BarberRepository{
     } else {
       if(getSites){
         const barbers = await mySQLBarber.findAll({
-          where: {
-            siteIdRef: siteIdRef,
-          },
           limit: pageSize,
           offset: page * pageSize,
-          include: [mySQLSite],
+          include: {
+            model: mySQLSite,
+            attributes: {
+              exclude: ['createdAt','updatedAt']
+            }
+          },
           attributes: {
-            exclude: ['createdAt', 'updatedAt']
+            exclude: ['siteId','createdAt', 'updatedAt']
           }
         });
 
@@ -72,7 +82,7 @@ export class mySQLBarberRepository implements BarberRepository{
       } else {
         const barbers = await mySQLBarber.findAll({
           where: {
-            siteIdRef: siteIdRef,
+            siteId: siteId,
           },
           limit: pageSize,
           offset: page * pageSize,
@@ -88,22 +98,22 @@ export class mySQLBarberRepository implements BarberRepository{
   }
   async createBarber(barberInputFields: BarberInputFields): 
   Promise<BarberFields> {
-    await this.createBarber(
+    await mySQLBarber.create(
       {
         barberName: barberInputFields.barberName,
         barberSurname: barberInputFields.barberSurname,
         barberPicture: barberInputFields.barberPicture,
         barberDescription: barberInputFields.barberDescription,
-        siteIdRef: barberInputFields.siteIdRef
+        siteId: barberInputFields.siteId
       }
     );
 
     const returnedBarber = await mySQLBarber.findOne({
       where: {
-        barberName: barberInputFields.barberName
+        barberPicture: barberInputFields.barberPicture
       },
       attributes: {
-        exclude: ['createdAt', 'modifiedAt']
+        exclude: ['createdAt', 'updatedAt']
       }
     });
 

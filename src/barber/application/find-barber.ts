@@ -14,14 +14,14 @@ export class FindBarber {
   }
 
   async runFindBarbers(
-    siteIdRef: number, 
+    siteId: number, 
     page: number, 
     pageSize: number, 
     getSites: boolean):
   Promise<BarberFields[]> 
   {
     const barbers = 
-    await this.barberRepository.getBarbers(siteIdRef, page, pageSize, getSites);
+    await this.barberRepository.getBarbers(siteId, page, pageSize, getSites);
 
     if(!barbers) throw new Error('Could not find barbers');
 

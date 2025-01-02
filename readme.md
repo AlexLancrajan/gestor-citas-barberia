@@ -267,7 +267,7 @@ En este apartado se describe la implementación del concepto de barbero.
       "barberSurname": "Fuentes",
       "barberPicture": "<enlace a la imagen>",
       "barberDescription": "Hago cortes del estilo...",
-      "siteIdRef": 43
+      "siteId": 43
     }    
   ```
 
@@ -275,7 +275,7 @@ En este apartado se describe la implementación del concepto de barbero.
 1. **[GET] FIND BARBER:** ***/api/barber/:id*** 
   - Esta ruta devuelve un barbero basado en su id y una query del estilo */?getSite=bool*, que se encarga de mostrar el sitio si es true.
 2. **[GET] FIND BARBERS:** ***/api/barber*** 
-  - Esta ruta devuelve todos los locales. Acepta queries de paginado (*/?**page=int**&**pageSize=int***) y dos queries más */?**getSites=bool**&**siteIdRef=int*** que se encargan de mostrar los sitios y filtrar por sitio respectivamente. Por defecto devuelve los primeros 50 resultados sin incluir los sitios y sin filtrar.
+  - Esta ruta devuelve todos los locales. Acepta queries de paginado (*/?**page=int**&**pageSize=int***) y dos queries más */?**getSites=bool**&**siteId=int*** que se encargan de mostrar los sitios y filtrar por sitio respectivamente. Por defecto devuelve los primeros 50 resultados sin incluir los sitios y sin filtrar.
 3. **[POST] CREATE BARBERS:** ***/api/barber*** 
   - En esta ruta se crea un barbero. Necesita rol de admin.
 4. **[PUT] MODIFY BARBER:** ***/api/barber/:id*** 
@@ -314,8 +314,9 @@ En este apartado se describira la implementación del concepto de servicio asoci
     "serviceId": 134,
     "serviceType": "Trenzas",
     "servicePrice": 32.45, 
-    "serviceDuration": "00:30:00",
+    "serviceDuration": "2024-12-21T00:30:00Z",
     "serviceDescription":"En este servicio hacemos trenzas de esta manera ...",
+    "siteId": 1
   }
   ```
 
@@ -324,7 +325,7 @@ En este apartado se describira la implementación del concepto de servicio asoci
 1. **[GET] FIND SERVICE:** ***/api/services/:id*** 
   - Esta ruta devuelve un servicio basado en su id.
 2. **[GET] FIND SERVICES:** ***/api/services*** 
-  - Esta ruta devuelve todos los sitios. Acepta queries de paginado (*/?**page=int**&**pageSize=int***). Por defecto devuelve los primeros 50 resultados.
+  - Esta ruta devuelve todos los sitios. Acepta queries de paginado (*/?**page=int**&**pageSize=int***) y filto por la id del sitio (*/?**siteId=int***). Por defecto devuelve los primeros 50 resultados.
 3. **[POST] CREATE SERVICE:** ***/api/services*** 
   - En esta ruta se crea un servicio. Necesita rol de admin.
 4. **[PUT] MODIFY SERVICE:** ***/api/services/:id*** 

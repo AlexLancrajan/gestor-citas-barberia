@@ -16,19 +16,35 @@ export class mySQLServiceRepository implements ServiceRepository {
     else return null;
   }
 
-  async getServices(page: number, pageSize: number): Promise<ServiceFields[] | null> {
-    const services = await mySQLService.findAll(
-      {  
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        },
-        limit: pageSize,
-        offset: page * pageSize,
-      }
-    );
-
-    if (services) return services.map(service => service.toJSON());
-    else return null;
+  async getServices(siteId: number | undefined, page: number, pageSize: number): Promise<ServiceFields[] | null> {
+    if(siteId) {
+      const services = await mySQLService.findAll(
+        { 
+          where: {
+            siteId: siteId
+          }, 
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
+          limit: pageSize,
+          offset: page * pageSize,
+        }
+      );
+      if(!services) return null;
+      else return services.map(service => service.toJSON());
+    } else {
+      const services = await mySQLService.findAll(
+        { 
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
+          limit: pageSize,
+          offset: page * pageSize,
+        }
+      );
+      if(!services) return null;
+      else return services.map(service => service.toJSON());
+    }
   }
 
   async createService(serviceInputFields: ServiceInputFields): Promise<ServiceFields> {
@@ -43,7 +59,8 @@ export class mySQLServiceRepository implements ServiceRepository {
     const newService = await mySQLService.findOne( 
       {
         where: {
-          serviceType: serviceInputFields.serviceType
+          serviceType: serviceInputFields.serviceType,
+          siteId: serviceInputFields.siteId
         },
         attributes: {
           exclude: ['createdAt', 'updatedAt']

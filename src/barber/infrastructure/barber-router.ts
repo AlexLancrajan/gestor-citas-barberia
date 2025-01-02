@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import { barberController } from "./dependencies";
-import { verifyTokenMiddleware } from "../../ztools/middleware";
+import { validateSchemaData, verifyTokenMiddleware } from "../../ztools/middleware";
+import { barberInputSchema, barberModificationSchema } from "./barber-schema";
 
 const barberRouter = Router();
 
@@ -18,12 +19,14 @@ barberRouter.get(
 barberRouter.post(
   '/',
   verifyTokenMiddleware,
+  validateSchemaData(barberInputSchema),
   barberController.createBarbersFunction.bind(barberController)
 );
 
 barberRouter.put(
   '/:id',
   verifyTokenMiddleware,
+  validateSchemaData(barberModificationSchema),
   barberController.modifyBarbersFunction.bind(barberController)
 );
 

@@ -162,7 +162,7 @@ const mySQLBarber = sequelize.define(
       type: DataTypes.STRING(1024),
       allowNull: false,
     },
-    siteIdRef: {
+    siteId: {
       type: DataTypes.INTEGER,
       references: {
         model: mySQLSite,
@@ -214,6 +214,14 @@ const mySQLService = sequelize.define(
       }
     }
   },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['serviceType','siteId']
+      }
+    ]
+  }
 );
 
 /**
@@ -317,6 +325,27 @@ const mySQLBooking = sequelize.define(
     timestamps: false
   }
 );
+
+/**
+ * One to many relationship declaration
+*/
+// Barber to Site
+mySQLBarber.belongsTo(mySQLSite, {
+  foreignKey: 'siteId'
+});
+
+mySQLSite.hasMany(mySQLBarber, {
+  foreignKey: 'siteId',
+});
+
+//Service to Site
+mySQLService.belongsTo(mySQLSite, {
+  foreignKey: 'siteId'
+});
+
+mySQLSite.hasMany(mySQLService, {
+  foreignKey: 'siteId',
+});
 
 /**
  * Junction table to represent the relationship between barbers and services.

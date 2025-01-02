@@ -6,16 +6,16 @@ export const barberInputSchema = z.object({
   barberSurname: z.string().trim(),
   barberPicture: z.string().trim(),
   barberDescription: z.string().trim(),
-  siteIdRef: z.number()
-});
+  siteId: z.number()
+}).strict();
 
 export const barberModificationSchema = z.object({
   barberName: z.string().trim().optional(),
   barberSurname: z.string().trim().optional(),
   barberPicture: z.string().trim().optional(),
   barberDescription: z.string().trim().optional(),
-  siteIdRef: z.number().optional()
-});
+  siteId: z.number().optional()
+}).strict();
 
 export type BarberInputSchema = z.infer<typeof barberInputSchema>;
 export type BarberModificationSchema = z.infer<typeof barberModificationSchema>;

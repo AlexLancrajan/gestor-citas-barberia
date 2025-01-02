@@ -3,7 +3,7 @@ import { BarberFields, BarberInputFields } from "./barber";
 export interface BarberRepository {
   getBarber(barberId: string, getSite: boolean): Promise<BarberFields | null>;
 
-  getBarbers(siteIdRef: number, page: number, pageSize: number, getSites: boolean):
+  getBarbers(siteId: number, page: number, pageSize: number, getSites: boolean):
   Promise<BarberFields[] | null>;
 
   createBarber(barberInputFields: BarberInputFields): 

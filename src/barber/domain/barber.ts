@@ -5,7 +5,7 @@ export interface BarberInputFields {
   barberSurname: string,
   barberPicture: string,
   barberDescription: string,
-  siteIdRef: number,
+  siteId: number,
 }
 
 export interface BarberFields extends Partial<BarberInputFields> {
