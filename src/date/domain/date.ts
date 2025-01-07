@@ -4,12 +4,12 @@ import { SiteFields } from "../../site/domain/site";
 export interface DateInputFields {
   dateDate: Date,
   dateAvailability: Availability
-  dateSiteIdRef: number,
+  siteId: number,
 }
 
 export interface DateFields extends DateInputFields{
   dateId: number,
-  dateSiteRef?: SiteFields,
+  siteRef?: SiteFields,
 }
 
 export interface ScheduleFields {

@@ -3,19 +3,13 @@
 import express from 'express';
 import { dateController } from './dependencies';
 import { validateSchemaData, verifyTokenMiddleware } from '../../ztools/middleware';
-import { automaticDatesSchema, dailyDatesSchema, dateInputSchema, dateModificationSchema, dateNoAvailabilitySchema, occupationDatesSchema, siteIdRefSchema } from './date-schema';
+import { automaticDatesSchema, dailyDatesSchema, dateInputSchema, dateModificationSchema, dateNoAvailabilitySchema, occupationDatesSchema } from './date-schema';
 
 const dateRouter = express.Router();
 
 dateRouter.get(
   '/',
-  validateSchemaData(siteIdRefSchema),
   dateController.getDatesFunction.bind(dateController)
-);
-
-dateRouter.get(
-  '/:id', 
-  dateController.getDateByIdFunction.bind(dateController)
 );
 
 dateRouter.get(
@@ -28,6 +22,11 @@ dateRouter.get(
   '/occupation',
   validateSchemaData(occupationDatesSchema),
   dateController.getOccupationFunction.bind(dateController)
+);
+
+dateRouter.get(
+  '/:id', 
+  dateController.getDateByIdFunction.bind(dateController)
 );
 
 dateRouter.post(
@@ -65,16 +64,15 @@ dateRouter.delete(
 );
 
 dateRouter.delete(
-  '/:id',
-  verifyTokenMiddleware, 
-  dateController.deleteDateByIdFunction.bind(dateController)
-);
-
-dateRouter.delete(
   '/site',
   verifyTokenMiddleware, 
   dateController.deleteDatesFromSiteFunction.bind(dateController)
 );
 
+dateRouter.delete(
+  '/:id',
+  verifyTokenMiddleware, 
+  dateController.deleteDateByIdFunction.bind(dateController)
+);
 
 export { dateRouter };

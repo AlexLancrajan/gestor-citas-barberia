@@ -242,7 +242,6 @@ const mySQLDate = sequelize.define(
     dateDate: {
       type: DataTypes.DATE,
       allowNull: false,
-      unique: true,
     },
     dateAvailability: {
       type: DataTypes.ENUM(
@@ -251,14 +250,23 @@ const mySQLDate = sequelize.define(
       ),
       allowNull: false
     },
-    dateSiteIdRef: {
+    siteId: {
       type: DataTypes.INTEGER,
       references: {
         model: mySQLSite,
         key: 'siteId'
       }
     },
-  },
+  }, 
+  {
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['dateDate','siteId']
+      }
+    ]
+  }
 );
 
 /**
@@ -347,6 +355,18 @@ mySQLSite.hasMany(mySQLService, {
   foreignKey: 'siteId',
 });
 
+//Dates to Site
+mySQLDate.belongsTo(mySQLSite, {
+  foreignKey: 'siteId'
+});
+
+mySQLSite.hasMany(mySQLDate, {
+  foreignKey: 'siteId',
+});
+
+
+
+
 /**
  * Junction table to represent the relationship between barbers and services.
  */
@@ -387,7 +407,7 @@ mySQLSite.belongsToMany(mySQLService,
 export const initSQLModels = async () => {
   try {
     if(process.env.NODE_ENV) {
-      await sequelize.drop();
+      //await sequelize.drop();
     }
     await sequelize.sync();
   } catch (error) {

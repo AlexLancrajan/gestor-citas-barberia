@@ -14,9 +14,14 @@ export class mySQLDateRepository implements DateRepository {
       const date = 
       await mySQLDate.findByPk(dateId,
         { 
-          include:[mySQLSite],
+          include:{
+            model: mySQLSite,
+            attributes: {
+              exclude: ['createdAt','updatedAt']
+            }
+          },
           attributes: {
-            exclude: ['createdAt', 'updatedAt']
+            exclude: ['siteId']
           } 
         }
       );
@@ -24,32 +29,21 @@ export class mySQLDateRepository implements DateRepository {
       if(!date) return null;
       else return date.toJSON();
     } else {
-      const date = 
-      await mySQLDate.findByPk(dateId, 
-        {
-          attributes: {
-            exclude: ['createdAt', 'updatedAt']
-          } 
-        }
-      );
-      
+      const date = await mySQLDate.findByPk(dateId);
       if(!date) return null;
       else return date.toJSON();
     }
   }
 
-  async getDateByDate(dateToFind: Date, siteIdRef: number): 
+  async getDateByDate(dateToFind: Date, siteId: number): 
   Promise<DateFields | null> {
     const date = 
     await mySQLDate.findOne(
       { 
         where: { 
           dateDate: dateToFind,
-          dateSiteIdRef: siteIdRef 
+          siteId: siteId 
         },
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        }
       }
     );
     
@@ -58,21 +52,26 @@ export class mySQLDateRepository implements DateRepository {
   }
 
   async getDates(
-    siteIdRef: number, 
+    siteId: number, 
     page: number, 
     pageSize: number,
     getSites: boolean
   ): Promise<DateFields[] | null> {
-    if(getSites && siteIdRef !== -1) {
+    if(getSites && siteId > 0) {
       const dates = 
       await mySQLDate.findAll(
         {  
           where: {
-            dateSiteIdRef: siteIdRef,
+            siteId: siteId,
           },
-          include:[mySQLSite],
+          include:{
+            model: mySQLSite,
+            attributes: {
+              exclude: ['createdAt','updatedAt']
+            }
+          },
           attributes: {
-            exclude: ['createdAt', 'updatedAt']
+            exclude: ['siteId']
           },
           limit: pageSize,
           offset: page * pageSize
@@ -85,9 +84,14 @@ export class mySQLDateRepository implements DateRepository {
       const dates = 
       await mySQLDate.findAll(
         {  
-          include:[mySQLSite],
           attributes: {
-            exclude: ['createdAt', 'updatedAt']
+            exclude: ['siteId']
+          },
+          include:{
+            model: mySQLSite,
+            attributes: {
+              exclude: ['createdAt','updatedAt']
+            }
           },
           limit: pageSize,
           offset: page * pageSize
@@ -100,9 +104,6 @@ export class mySQLDateRepository implements DateRepository {
       const dates = 
       await mySQLDate.findAll(
         {  
-          attributes: {
-            exclude: ['createdAt', 'updatedAt']
-          },
           limit: pageSize,
           offset: page * pageSize
         }
@@ -114,20 +115,17 @@ export class mySQLDateRepository implements DateRepository {
   }
 
   async getOccupation(
-    siteIdRef: number,
+    siteId: number,
     initDate: Date,
     endDate: Date
   ): Promise<Availability | null> {
     const dailyDates = await mySQLDate.findAll(
       {
         where: {
-          dateSiteIdRef: siteIdRef,
+          siteId: siteId,
           dateDate: {
             [Op.between]: [initDate, endDate]
           }
-        },
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
         }
       }
     );
@@ -137,11 +135,14 @@ export class mySQLDateRepository implements DateRepository {
 
     const length = dailyAvailability.length;
     const available = dailyAvailability.reduce((sum, value) => {
-      if(value === Availability.available) return sum += 1;
+      if(value.toString() !== Availability.available.toString()){
+        return sum += 1;
+      } 
       return sum;
     }, 0);
 
     const percentage = available/length * 100;
+    console.log(percentage);
     if(percentage < 25) return Availability.available;
     else if(percentage >= 25 && percentage < 50) return Availability.lowOccupied;
     else if(percentage >= 50 && percentage < 75) return Availability.mediumOccupied;
@@ -151,32 +152,33 @@ export class mySQLDateRepository implements DateRepository {
   }
 
   async createDailyDates(
-    siteIdRef: number,
+    siteId: number,
     schedule: ScheduleFields[],
     minutes: number
   ): Promise<void> {
     const record = await mySQLDate.findOne({
-      where: { dateSiteIdRef: siteIdRef },
+      where: { siteId: siteId },
       order: [['dateDate', 'DESC']],
     });
     
     if (!record) return;
     const dateFields: DateFields = record.toJSON();
-    const currentDay = dateFields.dateDate;
-
+    const currentDay = new Date(dateFields.dateDate);
+    currentDay.setDate(currentDay.getDate()+1);
+    
     const result = 
     schedule.find(
       day => day.initDate.getDay() === currentDay.getDay()
     );
 
     if(result) {
-      const initSchedule = currentDay;
+      const initSchedule = new Date(currentDay);
       initSchedule
       .setHours(
         result.initDate.getHours(), 
         result.initDate.getMinutes(), 0, 0);
 
-      const endSchedule = currentDay;
+      const endSchedule = new Date(currentDay);
       endSchedule
       .setHours(
         result.endDate.getHours(), 
@@ -187,16 +189,18 @@ export class mySQLDateRepository implements DateRepository {
       );
       const newDateDates = newDates.map(date => ({
         dateDate: date,
-        dateAvailability: Availability.available,
-        dateSiteIdRef: siteIdRef,
+        dateAvailability: Availability.available.toString(),
+        dateSiteId: siteId,
       }));
   
       try{
         await mySQLDate.bulkCreate(newDateDates);
-        console.log('Schedule updated!!!');
+        console.log('New day added succesfully!');
       } catch(error) {
         console.log(error);
       }
+    } else {
+      console.log('New day could not be added!');
     }
   }
 
@@ -205,14 +209,14 @@ export class mySQLDateRepository implements DateRepository {
     months: number, 
     schedule: ScheduleFields[], 
     minutes: number, 
-    siteIdRef: number
+    siteId: number
   ): Promise<DateFields[]> {
     const generatedDates = generateNMonths(initDate, months, schedule, minutes);
     const dates = generatedDates.map(date => 
       ({
         dateDate: date,
-        dateAvailability: Availability.available,
-        dateSiteIdRef: siteIdRef
+        dateAvailability: Availability.available.toString(),
+        siteId: siteId
       })
     );
     await mySQLDate.bulkCreate(dates);
@@ -220,10 +224,7 @@ export class mySQLDateRepository implements DateRepository {
     const datesToVerify = await mySQLDate.findAll(
       {
         where: {
-          dateSiteIdRef: siteIdRef
-        },
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
+          siteId: siteId
         }
       }
     );
@@ -236,8 +237,8 @@ export class mySQLDateRepository implements DateRepository {
     const dates = dateInputFields.map(date => 
       ({
         dateDate: date.dateDate,
-        dateAvailability: Availability.available,
-        dateSiteIdRef: date.dateSiteIdRef
+        dateAvailability: date.dateAvailability.toString(),
+        siteId: date.siteId
       })
     );
     await mySQLDate.bulkCreate(dates);
@@ -245,10 +246,7 @@ export class mySQLDateRepository implements DateRepository {
     const datesToVerify = await mySQLDate.findAll(
       {
         where: {
-          dateSiteIdRef: dateInputFields[0].dateSiteIdRef
-        },
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
+          siteId: dateInputFields[0].siteId
         }
       }
     );
@@ -265,23 +263,25 @@ export class mySQLDateRepository implements DateRepository {
     if (!findDate) throw new Error('Could find the Date.');
 
     const modifiedDateData: DateInputFields = 
-    {...findDate.toJSON(), ...dateInputFields}; 
-    await mySQLDate.update(modifiedDateData, 
+    {
+      ...findDate.toJSON(), 
+      ...dateInputFields,
+    };
+    const modifiedDateCleaned = {
+      ... modifiedDateData,
+      dateAvailability: modifiedDateData.dateAvailability.toString()
+    };
+    
+    await mySQLDate.update(modifiedDateCleaned, 
       { where: { dateId: dateId } });
 
-    const modifiedDate = await mySQLDate.findByPk(dateId,
-      {
-        attributes: {
-          exclude: ['createdAt', 'deletedAt']
-        }
-      }
-    );
+    const modifiedDate = await mySQLDate.findByPk(dateId);
     if(!modifiedDate) throw new Error('Could not modify the Date.');
 
     return modifiedDate.toJSON();
   }
 
-  async deleteDate(): Promise<void> {
+  async deleteDate(): Promise<number> {
     const currentDay = new Date(Date.now());
 
     const deletedPrevious = await mySQLDate.destroy({
@@ -291,7 +291,7 @@ export class mySQLDateRepository implements DateRepository {
         }
       }
     });
-    console.log(deletedPrevious);
+    return deletedPrevious;
   }
 
   async deleteDateById(dateId: number): Promise<number> {
@@ -300,9 +300,14 @@ export class mySQLDateRepository implements DateRepository {
     return deletedDate;
   }
 
-  async deleteDatesFromSite(siteIdRef: number): Promise<number> {
-    const deletedStatus = await
-    mySQLDate.destroy({ where: { dateSiteIdRef: siteIdRef }});
-    return deletedStatus;
+  async deleteDatesFromSite(siteId: number): Promise<number> {
+    if(siteId === -1) {
+      return -1;
+    } else {
+      const deletedStatus = await
+      mySQLDate.destroy({ where: { siteId: siteId }});
+      return deletedStatus;
+    }
+
   }
 }

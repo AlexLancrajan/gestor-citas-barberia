@@ -1,58 +1,62 @@
 import { z } from 'zod';
 import { Availability } from '../../booking/domain/booking';
 
-export const dateInputSchema = z.object({
-  dateDate: z.date(),
-  dateAvailability: z.nativeEnum(Availability),
-  dateSiteIdRef: z.number(),
-});
+const parseDate = z.preprocess((arg) => {
+  if (typeof arg === "string") {
+    const date = new Date(arg);
+    return date; // Convert ISO string to Date
+  }
+  return arg; // Return as is if it's already a Date
+}, z.date());
 
-export const dateNoAvailabilitySchema = z.object({
-  dateDate: z.date(),
-  dateSiteIdRef: z.number(),
-});
-
-export const dateModificationSchema = z.object({
-  dateDate: z.date().optional(),
-  dateAvailability: z.nativeEnum(Availability).optional(),
-  dateSiteIdRef: z.number().optional(),
-});
-
-export const siteIdRefSchema = z.object({
-  siteIdRef: z.number()}
+export const dateInputSchema = z.array(
+  z.object({
+    dateDate: parseDate,
+    dateAvailability: z.nativeEnum(Availability),
+    siteId: z.number(),
+  }).strict()
 );
 
+export const dateNoAvailabilitySchema = z.object({
+  dateDate: parseDate,
+  siteId: z.number(),
+}).strict();
+
+export const dateModificationSchema = z.object({
+  dateDate: parseDate.optional(),
+  dateAvailability: z.nativeEnum(Availability).optional(),
+  siteId: z.number().optional(),
+}).strict();
 
 export const occupationDatesSchema = z.object({
-  siteIdRef: z.number(),
-  initDate: z.date(),
-  endDate: z.date(),
-});
+  siteId: z.number(),
+  initDate: parseDate,
+  endDate: parseDate,
+}).strict();
 
 export const dailyDatesSchema = z.object({
-  siteIdRef: z.number(),
+  siteId: z.number(),
   schedule: z.array(z.object({
-    initDate: z.date(),
-    endDate: z.date(),
+    initDate: parseDate,
+    endDate: parseDate,
   })),
   minutes: z.number()
-});
+}).strict();
 
 export const automaticDatesSchema = z.object({
-  initDate: z.date(),
-  months: z.number(),
+  initDate: parseDate.optional(),
+  months: z.number().optional(),
   schedule: z.array(z.object({
-    initDate: z.date(),
-    endDate: z.date(),
+    initDate: parseDate,
+    endDate: parseDate,
   })),
-  minutes: z.number(),
-  siteIdRef: z.number(),
-});
+  minutes: z.number().optional(),
+  siteId: z.number(),
+}).strict();
 
 export type DateInputSchema = z.infer<typeof dateInputSchema>;
 export type DateNoAvailabilitySchema = z.infer<typeof dateNoAvailabilitySchema>;
 export type DateModificationSchema = z.infer<typeof dateModificationSchema>;
-export type SiteIdRefSchema = z.infer<typeof siteIdRefSchema>;
 export type OccupationDatesSchema = z.infer<typeof occupationDatesSchema>;
 export type DailyDatesSchema = z.infer<typeof dailyDatesSchema>;
 export type AutomaticDatesSchema = z.infer<typeof automaticDatesSchema>;

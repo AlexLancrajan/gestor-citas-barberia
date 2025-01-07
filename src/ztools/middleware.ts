@@ -4,7 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { z, ZodError } from 'zod';
+import { z, ZodError, ZodObject } from 'zod';
 import options from './config';
 import { UserForToken } from '../user/domain/user';
 
@@ -14,7 +14,7 @@ declare module 'express' {
   }
 }
 
-export const validateSchemaData = (schema: z.ZodObject<any, any>) => {
+export const validateSchemaData = (schema: z.ZodObject<any, any> | z.ZodArray<ZodObject<any,any>>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       schema.parse(req.body);

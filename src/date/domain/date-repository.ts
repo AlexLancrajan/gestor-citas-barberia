@@ -7,24 +7,24 @@ export interface DateRepository {
   getDateById(dateId: number, getSite: boolean): 
   Promise<DateFields | null>;
   
-  getDateByDate(date: Date, siteIdRef: number): 
+  getDateByDate(date: Date, siteId: number): 
   Promise<DateFields | null>;
 
   getDates(
-    siteIdRef: number,
+    siteId: number,
     page: number,
     pageSize: number,
     getSites: boolean
   ): Promise<DateFields[] | null>;
   
   getOccupation(
-    siteIdRef: number,
+    siteId: number,
     initDate: Date,
     endDate: Date
   ): Promise<Availability | null>
 
   createDailyDates(
-    siteIdRef: number,
+    siteId: number,
     schedule: ScheduleFields[],
     minutes: number
   ): Promise<void>
@@ -34,7 +34,7 @@ export interface DateRepository {
     months: number, 
     schedule: ScheduleFields[], 
     minutes: number,
-    siteIdRef: number
+    siteId: number
   ): Promise<DateFields[]>;
 
   createManualDates(
@@ -46,9 +46,9 @@ export interface DateRepository {
     dateInputFields: Partial<DateInputFields>
   ): Promise<DateFields>;
 
-  deleteDate(): Promise<void>;
+  deleteDate(): Promise<number>;
   
   deleteDateById(dateId: number): Promise<number>;
 
-  deleteDatesFromSite(siteIdRef: number): Promise<number>;
+  deleteDatesFromSite(siteId: number): Promise<number>;
 }

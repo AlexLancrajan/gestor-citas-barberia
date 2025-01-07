@@ -6,18 +6,18 @@ export class CreateDate {
   constructor(private readonly dateRepository: DateRepository) { }
 
   async runCreateDailyDates(
-    siteIdRef: number,
+    siteId: number,
     schedule: ScheduleFields[],
     minutes: number
   ): Promise<void> {
     try {
       await this.dateRepository.createDailyDates(
-        siteIdRef, schedule, minutes);
+        siteId, schedule, minutes);
     } catch (error: unknown) {
       if(error instanceof Error) {
         throw error;
       } else {
-        throw new Error(`Automatic dates for site ${siteIdRef} could not be created.`);
+        throw new Error(`Automatic dates for site ${siteId} could not be created.`);
       }
     }
   }
@@ -27,18 +27,18 @@ export class CreateDate {
     months: number, 
     schedule: ScheduleFields[], 
     minutes: number, 
-    siteIdRef: number
+    siteId: number
   ): Promise<DateFields[]> {
     try {
       const dates = 
       await this.dateRepository.createAutomaticDates(
-        initDate, months, schedule, minutes, siteIdRef);
+        initDate, months, schedule, minutes, siteId);
       return dates;    
     } catch (error: unknown) {
       if(error instanceof Error) {
         throw error;
       } else {
-        throw new Error(`Automatic dates for site ${siteIdRef} could not be created.`);
+        throw new Error(`Automatic dates for site ${siteId} could not be created.`);
       }
     }
   }
@@ -54,7 +54,7 @@ export class CreateDate {
       if(error instanceof Error) {
         throw error;
       } else {
-        throw new Error(`Manual dates for site ${dateInputFields[0].dateSiteIdRef} could not be created.`);
+        throw new Error(`Manual dates for site ${dateInputFields[0].siteId} could not be created.`);
       }
     }
   }

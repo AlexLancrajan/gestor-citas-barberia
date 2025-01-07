@@ -14,8 +14,8 @@ export class FindDate {
     else return date;
   }
 
-  async runDateByDate(date: Date, siteIdRef: number): Promise<DateFields> {
-    const dateByDate = await this.dateRepository.getDateByDate(date, siteIdRef);
+  async runDateByDate(date: Date, siteId: number): Promise<DateFields> {
+    const dateByDate = await this.dateRepository.getDateByDate(date, siteId);
     
     if(!dateByDate) throw new Error('Date not found');
 
@@ -23,10 +23,10 @@ export class FindDate {
   }
 
   async runDates(
-    siteIdRef: number, page: number, pageSize: number, getSites: boolean
+    siteId: number, page: number, pageSize: number, getSites: boolean
   ): Promise<DateFields[]> {
     const dates = await this.dateRepository.getDates(
-      siteIdRef, page, pageSize, getSites);
+      siteId, page, pageSize, getSites);
     
     if (!dates) throw new Error('Date list is empty.');
     
@@ -34,15 +34,15 @@ export class FindDate {
   }
 
   async runOccupation(
-    siteIdRef: number,
+    siteId: number,
     initDate: Date,
     endDate: Date
   ): Promise<Availability> {
     const availability = await this.dateRepository.getOccupation(
-      siteIdRef, initDate, endDate
+      siteId, initDate, endDate
     );
 
-    if(!availability) throw new Error('Could not get availability');
+    if(availability === null) throw new Error('Could not get availability');
 
     return availability;
   }
