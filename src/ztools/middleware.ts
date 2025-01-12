@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+ 
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
@@ -22,7 +22,7 @@ export const validateSchemaData = (schema: z.ZodObject<any, any> | z.ZodArray<Zo
     } catch (error: unknown) {
       if (error instanceof ZodError) {
         const errorMessages = error.errors.map((issue: any) => ({
-          message: `${issue.path.join('.')} is ${issue.message}`
+          message: `${issue.message}`
         }));
         res.status(400).json({ error: 'Invalid data', details: errorMessages });
       } else {
