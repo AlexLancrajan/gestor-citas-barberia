@@ -6,7 +6,7 @@ export class ModifyBooking {
   constructor(private readonly bookingRepository: BookingRepository) { }
 
   async run(
-    bookingId: number, bookingInputFields: Partial<BookingInputFields>
+    bookingId: string, bookingInputFields: Partial<BookingInputFields>
   ): Promise<BookingFields> {
     try {
       const booking = 

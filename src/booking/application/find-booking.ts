@@ -6,7 +6,7 @@ export class FindBooking {
   constructor(private readonly bookingRespository: BookingRepository) { }
 
   async runGetBooking(
-    bookingId: number,
+    bookingId: string,
     getUser: boolean,
     getSite: boolean,
     getService: boolean
@@ -32,7 +32,7 @@ export class FindBooking {
   }
 
   async runGetBookingsForUser(
-    bookingUserId: number,
+    userId: string,
     page: number,
     pageSize: number,
     getUser: boolean,
@@ -41,7 +41,7 @@ export class FindBooking {
   ): Promise<BookingFields[]> {
     const bookings = 
     await this.bookingRespository.getBookingsForUser(
-      bookingUserId, page, pageSize, getUser, getSite, getService
+      userId, page, pageSize, getUser, getSite, getService
     );
 
     if (!bookings) throw new Error('Booking list empty.');

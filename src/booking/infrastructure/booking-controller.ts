@@ -3,13 +3,12 @@ import { DeleteBooking } from "../application/delete-booking";
 import { FindBooking } from "../application/find-booking";
 import { ModifyBooking } from "../application/modify-booking";
 import { Roles } from "../../user/domain/user";
-import { Availability } from "../domain/booking";
-import { BookingPaymentInputSchema, BookingNoPaymentInputSchema, BookingQuerySchema, BookingQueryUserSchema, PaymentSchema, RefundPaymentSchema } from "./booking-schema";
+import { Availability } from "../../date/domain/date";
+import { BookingPaymentInputSchema, BookingNoPaymentInputSchema, BookingQueryAdminSchema, BookingQueryUserSchema, PaymentSchema, RefundPaymentSchema, BookingModificationSchema } from "./booking-schema";
 import { findDate, modifyDate } from "../../date/infrastructure/dependencies";
 import options from "../../ztools/config";
 
 import { Request, Response } from "express";
-import { BookingQueryParams } from "../domain/booking-repository";
 import { omit } from "lodash";
 import { checkTimeRemaining } from "../../ztools/utils";
 import { cancelPayment, createPaymentIntent, createRefunds, getPaymentIntent } from "../../ztools/stripe-service";
@@ -24,19 +23,30 @@ export class BookingController {
   ) { }
 
   async getBookingFunction(req: Request, res: Response) {
-    const bookingId = Number(req.params.id);
+    const bookingId = req.params.id;
     const userId = req.userToken?.userId;
     const role = req.userToken?.role.toString().toLowerCase();
+    const getUser = Boolean(req.query?.getUser) || false;
     const getSite = Boolean(req.query?.getSite) || false;
     const getService = Boolean(req.query?.getService);
 
     try {
       const booking = await this.findBooking.runGetBooking(
-        bookingId, true, getSite, getService);
-      if (userId !== booking.userRef?.userId || 
+        bookingId, getUser, getSite, getService);
+      if (userId !== booking.userId && 
           role !== Roles.admin) 
           return res.status(401).json({ error: 'Unauthorized access' });
-      else return res.json(booking);
+      else {
+        const noHashBooking = {
+          ...booking,
+          ...(getUser ? 
+            {
+              User: omit(booking.User, ['passwordHash'])
+            } : undefined
+          )
+        };
+        return res.json(noHashBooking);
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         return res.status(404).json({ error: error.message });
@@ -52,7 +62,7 @@ export class BookingController {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
-    const bookingQuery: BookingQueryParams = req.body as BookingQuerySchema;
+    const bookingQuery = req.body as BookingQueryAdminSchema;
     try {
       const bookings = await this.findBooking.runGetBookingsForAdmin(
         bookingQuery
@@ -69,12 +79,13 @@ export class BookingController {
 
   async getBookingsForUserFunction(req: Request, res: Response) {
     const role = req.userToken?.role.toString().toLowerCase();
+    const decodedUserId = req.userToken?.userId || "invalid";
     if (!role) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
     const {
-      bookingUserId = -1,
+      userId = decodedUserId,
       page = 0,
       pageSize = 50,
       getUser = false,
@@ -83,7 +94,7 @@ export class BookingController {
     } = req.body as BookingQueryUserSchema;
     try {
       const bookings = await this.findBooking.runGetBookingsForUser(
-        bookingUserId, page, pageSize, getUser, getSite, getService
+        userId, page, pageSize, getUser, getSite, getService
       );
       return res.json(bookings);
     } catch (error: unknown) {
@@ -98,14 +109,17 @@ export class BookingController {
   async createBookingNoPaymentFunction(req: Request, res: Response) {
     const missingTrack = req.userToken?.missingTrack;
 
-    if(!missingTrack || missingTrack > 2) {
-      return res.json(401).json({ error: 'Too much missing track.'});
+    if(missingTrack === undefined) {
+      return res.status(400).json({ error: 'missingTrack not found'});
+    }
+    if(missingTrack > 2) {
+      return res.status(401).json({ error: 'Too much missing track.'});
     }
 
     const bookingInputFields = req.body as BookingNoPaymentInputSchema;
     try {
       const date = await findDate.runDateByDate(
-        bookingInputFields.bookingDate, bookingInputFields.siteIdRef);
+        bookingInputFields.bookingDate, bookingInputFields.siteId);
       
       if(!date || date.dateAvailability === Availability.full) {
         return res.status(400).json({ error: 'Date for this site already occupied.' });
@@ -137,7 +151,7 @@ export class BookingController {
     const bookingInputFields = req.body as BookingPaymentInputSchema;
     try {
       const date = await findDate.runDateByDate(
-        bookingInputFields.bookingDate, bookingInputFields.siteIdRef);
+        bookingInputFields.bookingDate, bookingInputFields.siteId);
       
       if(!date || date.dateAvailability === Availability.full) {
         return res.status(400).json({ error: 'Date for this site already occupied.' });
@@ -166,30 +180,32 @@ export class BookingController {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
 
-    const bookingId = Number(req.params.id);
-    const bookingInputFields = req.body as BookingNoPaymentInputSchema;
-    if(role !== Roles.admin.toString()) {
-      if(!checkTimeRemaining(bookingInputFields.bookingDate, options.timeLimit)) {
-        return res.json(400).json({ error: 'Time limit surpassed. Can not modify booking'});
-      }
-    }
-  
+    const bookingId = req.params.id;
+    const bookingInputFields = req.body as BookingModificationSchema;
+
     try {
       const originalBooking = 
       await this.findBooking.runGetBooking(
         bookingId, true, false, false);
 
-      if(role !== Roles.admin.toString() || 
-      originalBooking.userRef?.userId !== userId) {
+      if(role !== Roles.admin.toString() && 
+      originalBooking.userId !== userId) {
         return res.status(401).json({ error: 'Unauthorized access.' });
       }
+
+      if(role !== Roles.admin.toString()) {
+        if(!checkTimeRemaining(originalBooking.bookingDate, options.timeLimit)) {
+          return res.status(400).json({ error: 'Time limit surpassed. Can not modify booking'});
+        }
+      }
       const date = await findDate.runDateByDate(
-        originalBooking.bookingDate, originalBooking.siteIdRef);
+        originalBooking.bookingDate, originalBooking.siteId);
       
       if(!date) return res.status(400).json({ error: 'Something went wrong...'});
+      
 
       const newDateToCheck = await findDate.runDateByDate(
-        bookingInputFields.bookingDate, bookingInputFields.siteIdRef
+        bookingInputFields.bookingDate, originalBooking.siteId
       );
       if(!newDateToCheck || newDateToCheck.dateAvailability === Availability.full) {
         return res.status(400).json({ error: 'Date already occupied'});
@@ -199,7 +215,7 @@ export class BookingController {
       await modifyDate.run(newDateToCheck.dateId, omit(newDateToCheck, 'dateId'));
       await modifyDate.run(date.dateId, omit(date, 'dateId'));
 
-      const modifiedBooking = this.modifyBooking.run(
+      const modifiedBooking = await this.modifyBooking.run(
         bookingId, bookingInputFields
       );
       return res.json(modifiedBooking);
@@ -218,27 +234,27 @@ export class BookingController {
     if (!role) {
       return res.status(401).json({ error: 'Unauthorized access.' });
     }
+    const bookingId = req.params.id;
 
-    const bookingId = Number(req.params.id);
-    const bookingInputFields = req.body as BookingNoPaymentInputSchema;
-    if(role !== Roles.admin.toString()) {
-      if(!checkTimeRemaining(bookingInputFields.bookingDate, options.timeLimit)) {
-        return res.json(400).json({ error: 'Time limit surpassed. Can not modify booking'});
-      }
-    }
-  
     try {
       const originalBooking = 
       await this.findBooking.runGetBooking(
         bookingId, true, false, false);
 
-      if(role !== Roles.admin.toString() || 
-      originalBooking.userRef?.userId !== userId) {
+      if(role !== Roles.admin.toString() && 
+      originalBooking.userId !== userId) {
         return res.status(401).json({ error: 'Unauthorized access.' });
       }
+
+      if(role !== Roles.admin.toString()) {
+        if(!checkTimeRemaining(originalBooking.bookingDate, options.timeLimit)) {
+          return res.json(400).json({ error: 'Time limit surpassed. Can not modify booking'});
+        }
+      }
+
       const date = await findDate.runDateByDate(
-        originalBooking.bookingDate, originalBooking.siteIdRef);
-      
+        originalBooking.bookingDate, originalBooking.siteId);
+      console.log(date);
       if(!date) return res.status(400).json({ error: 'Something went wrong...'});
       date.dateAvailability = Availability.available;
       await modifyDate.run(date.dateId, omit(date, 'dateId'));
@@ -295,7 +311,7 @@ export class BookingController {
   };
 
   async cancelPaymentFunction(req: Request, res: Response) {
-    const bookingId = Number(req.params.bookingId);
+    const bookingId = req.params.bookingId;
     const { paymentIntentId } = req.body as RefundPaymentSchema;
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'PaymentIntent ID is required' });
@@ -325,7 +341,7 @@ export class BookingController {
   }
 
   async refundPaymentFunction(req: Request, res: Response) {
-    const bookingId = Number(req.params.bookingId);
+    const bookingId = req.params.bookingId;
     const { paymentIntentId, amount } = req.body as RefundPaymentSchema;
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'PaymentIntent ID is required' });

@@ -1,5 +1,5 @@
 import { UUIDV4 } from "sequelize";
-import { Availability } from "./booking/domain/booking";
+import { Availability } from "./date/domain/date";
 import options from "./ztools/config";
 import { Sequelize, DataTypes } from "sequelize";
 import { isDialectType } from "./ztools/utils";
@@ -81,6 +81,9 @@ const mySQLUser = sequelize.define(
       defaultValue: 0,
     }
   },
+  {
+    timestamps: false
+  }
 );
 
 /**
@@ -125,6 +128,9 @@ const mySQLSite = sequelize.define(
       type: DataTypes.STRING,
     }
   },
+  {
+    timestamps: false
+  }
 );
 
 /**
@@ -169,6 +175,9 @@ const mySQLBarber = sequelize.define(
         key: 'siteId',
       }
     }, 
+  },
+  {
+    timestamps: false
   }
 );
 
@@ -215,6 +224,7 @@ const mySQLService = sequelize.define(
     }
   },
   {
+    timestamps: false,
     indexes: [
       {
         unique: true,
@@ -307,21 +317,21 @@ const mySQLBooking = sequelize.define(
     bookingPrice: {
       type: DataTypes.DECIMAL(5,2)
     },
-    bookingUserId: {
+    userId: {
       type: DataTypes.UUID,
       references: {
         model: mySQLUser,
         key: 'userId'
       }
     },
-    bookingSiteId: {
+    siteId: {
       type: DataTypes.INTEGER,
       references: {
         model: mySQLSite,
         key: 'siteId'
       }
     },
-    bookingServiceId: {
+    serviceId: {
       type: DataTypes.INTEGER,
       references: {
         model: mySQLService,
@@ -364,7 +374,32 @@ mySQLSite.hasMany(mySQLDate, {
   foreignKey: 'siteId',
 });
 
+//Booking to User
+mySQLBooking.belongsTo(mySQLUser, {
+  foreignKey: 'userId'
+});
 
+mySQLUser.hasMany(mySQLBooking, {
+  foreignKey: 'userId',
+});
+
+//Booking to Site
+mySQLBooking.belongsTo(mySQLSite, {
+  foreignKey: 'siteId'
+});
+
+mySQLSite.hasMany(mySQLBooking, {
+  foreignKey: 'siteId',
+});
+
+//Booking to Service
+mySQLBooking.belongsTo(mySQLService, {
+  foreignKey: 'serviceId'
+});
+
+mySQLService.hasMany(mySQLBooking, {
+  foreignKey: 'serviceId',
+});
 
 
 /**
@@ -407,7 +442,7 @@ mySQLSite.belongsToMany(mySQLService,
 export const initSQLModels = async () => {
   try {
     if(process.env.NODE_ENV) {
-      await sequelize.drop();
+      //await sequelize.drop();
     }
     await sequelize.sync();
   } catch (error) {

@@ -5,29 +5,33 @@ import { BookingQueryParams, BookingRepository } from "../domain/booking-reposit
 
 export class mySQLBookingRepository implements BookingRepository {
   async getBooking(
-    bookingId: number,
+    bookingId: string,
     getUser: boolean,
     getSite: boolean,
     getService: boolean
   ): Promise<BookingFields | null> {
-    const references: Includeable[] = [];
-    if(getUser)
-      references.push(mySQLUser);
-    if(getSite)
-      references.push(mySQLSite);
-    if(getService)
-      references.push(mySQLService);
+    const includeOptions: Includeable[] = [];
+
+    if(getUser) {
+      includeOptions.push(mySQLUser);
+    }
+    if(getSite) {
+      includeOptions.push(mySQLSite);
+    }
+    if(getService) {
+      includeOptions.push(mySQLService);
+    }
 
     const booking = 
     await mySQLBooking.findByPk(bookingId,
       {
-        include: references, 
+        include: includeOptions,
         attributes: { 
           exclude: ['createdAt', 'updatedAt']
         } 
       }
     );
-    
+
     if(!booking) 
       return null;
     else
@@ -37,23 +41,37 @@ export class mySQLBookingRepository implements BookingRepository {
   async getBookingsForAdmin(
     bookingQuery: BookingQueryParams
   ): Promise<BookingFields[] | null> {
-    const references: Includeable[] = [];
-    if(bookingQuery.getUsers)
-      references.push(mySQLUser);
-    if(bookingQuery.getSites)
-      references.push(mySQLSite);
-    if(bookingQuery.getServices)
-      references.push(mySQLService);
+    const includeOptions: Includeable[] = [];
+
+    if(bookingQuery.getUsers) {
+      includeOptions.push(mySQLUser);
+    }
+    if(bookingQuery.getSites) {
+      includeOptions.push(mySQLSite);
+    }
+    if(bookingQuery.getServices) {
+      includeOptions.push(mySQLService);
+    }
+
+    const whereClause: Record<string, unknown> = {};
+
+    if(typeof bookingQuery.bookingDate !== 'undefined') {
+      whereClause.bookingDate = bookingQuery.bookingDate;
+    }
+    if(typeof bookingQuery.userId !== 'undefined') {
+      whereClause.userId = bookingQuery.userId;
+    }
+    if(typeof bookingQuery.siteId !== 'undefined') {
+      whereClause.siteId = bookingQuery.siteId;
+    }
+    if(typeof bookingQuery.userId !== 'undefined') {
+      whereClause.serviceId = bookingQuery.serviceId;
+    }
 
     const bookings = 
     await mySQLBooking.findAll({
-      where: {
-        bookingDate: bookingQuery.bookingDate,
-        bookingUserId: bookingQuery.bookingUserId,
-        bookingSiteId: bookingQuery.bookingSiteId,
-        bookingServiceId: bookingQuery.bookingServiceId
-      },
-      include: references,
+      where: whereClause,
+      include: includeOptions,
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
@@ -68,27 +86,31 @@ export class mySQLBookingRepository implements BookingRepository {
   }
 
   async getBookingsForUser(
-    bookingUserId: number, 
+    userId: string, 
     page: number,
     pageSize: number,
     getUser: boolean,
     getSite: boolean,
     getService: boolean,
   ): Promise<BookingFields[] | null> {
-    const references: Includeable[] = [];
-    if(getUser)
-      references.push(mySQLUser);
-    if(getSite)
-      references.push(mySQLSite);
-    if(getService)
-      references.push(mySQLService);
+    const includeOptions: Includeable[] = [];
+
+    if(getUser) {
+      includeOptions.push(mySQLUser);
+    }
+    if(getSite) {
+      includeOptions.push(mySQLSite);
+    }
+    if(getService) {
+      includeOptions.push(mySQLService);
+    }
 
     const bookings = 
     await mySQLBooking.findAll({
       where: {
-        bookingUserId: bookingUserId
+        userId: userId
       },
-      include: references,
+      include: includeOptions,
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
@@ -108,9 +130,9 @@ export class mySQLBookingRepository implements BookingRepository {
     const newBooking = await mySQLBooking.create({
       bookingDate: bookingInputFields.bookingDate,
       bookingAnnotations: bookingInputFields.bookingAnnotations,
-      bookingUserId: bookingInputFields.userIdRef,
-      bookingSiteId: bookingInputFields.siteIdRef,
-      bookingServiceId: bookingInputFields.serviceIdRef
+      userId: bookingInputFields.userId,
+      siteId: bookingInputFields.siteId,
+      serviceId: bookingInputFields.serviceId
     });
 
     if(!newBooking)
@@ -129,9 +151,9 @@ export class mySQLBookingRepository implements BookingRepository {
       bookingTransactionId: bookingInputFields.bookingTransactionId,
       bookingPaymentDate: bookingInputFields.bookingPaymentDate,
       bookingPrice: bookingInputFields.bookingPrice,
-      bookingUserId: bookingInputFields.userIdRef,
-      bookingSiteId: bookingInputFields.siteIdRef,
-      bookingServiceId: bookingInputFields.serviceIdRef
+      bookingUserId: bookingInputFields.userId,
+      bookingSiteId: bookingInputFields.siteId,
+      bookingServiceId: bookingInputFields.serviceId
     });
 
     if(!newBooking)
@@ -142,7 +164,7 @@ export class mySQLBookingRepository implements BookingRepository {
   }
 
   async modifyBooking(
-    bookingId: number, 
+    bookingId: string, 
     bookingInputFields: Partial<BookingInputFields>
   ): Promise<BookingFields> {
     const foundBooking = await mySQLBooking.findByPk(bookingId);
@@ -156,7 +178,7 @@ export class mySQLBookingRepository implements BookingRepository {
     else return modifiedBooking.toJSON();
   }
   
-  async deleteBooking(bookingId: number): Promise<number> {
+  async deleteBooking(bookingId: string): Promise<number> {
     const deletedBooking = 
     await mySQLBooking.destroy({ where: { bookingId: bookingId } });
 

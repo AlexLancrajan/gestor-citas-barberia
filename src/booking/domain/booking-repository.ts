@@ -2,9 +2,9 @@ import { BookingFields, BookingInputFields } from "./booking";
 
 export interface BookingQueryParams {
   bookingDate?: Date,
-  bookingUserId?: number,
-  bookingSiteId?: number,
-  bookingServiceId?: number,
+  userId?: string,
+  siteId?: number,
+  serviceId?: number,
   getUsers?: boolean,
   getSites?: boolean,
   getServices?: boolean,
@@ -15,7 +15,7 @@ export interface BookingQueryParams {
 
 export interface BookingRepository {
   getBooking(
-    bookingId: number,
+    bookingId: string,
     getUser: boolean,
     getSite: boolean,
     getService: boolean
@@ -26,7 +26,7 @@ export interface BookingRepository {
   ): Promise<BookingFields[] | null>;
 
   getBookingsForUser(
-    bookingUserId: number,
+    userId: string,
     page: number,
     pageSize: number,
     getUser: boolean,
@@ -43,9 +43,9 @@ export interface BookingRepository {
   ): Promise<BookingFields>;
 
   modifyBooking(
-    bookingId: number,
+    bookingId: string,
     bookingInputFields: Partial<BookingInputFields>
   ): Promise<BookingFields>;
 
-  deleteBooking(bookingId: number): Promise<number>;
+  deleteBooking(bookingId: string): Promise<number>;
 }

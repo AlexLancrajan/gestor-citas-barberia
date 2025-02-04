@@ -1,5 +1,12 @@
-import { Availability } from "../../booking/domain/booking";
 import { SiteFields } from "../../site/domain/site";
+
+export enum Availability {
+  available,
+  lowOccupied,
+  mediumOccupied,
+  highlyOccupied,
+  full
+}
 
 export interface DateInputFields {
   dateDate: Date,

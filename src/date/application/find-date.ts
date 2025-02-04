@@ -1,4 +1,4 @@
-import { Availability } from "../../booking/domain/booking";
+import { Availability } from "../../date/domain/date";
 import { DateFields } from "../domain/date";
 import { DateRepository } from "../domain/date-repository";
 

@@ -2,7 +2,7 @@ import { DateFields, DateInputFields, ScheduleFields } from "../domain/date";
 import { DateRepository } from "../domain/date-repository";
 import { mySQLDate, mySQLSite } from "../../mySQL";
 import { generateDates, generateNMonths } from "../../ztools/utils";
-import { Availability } from "../../booking/domain/booking";
+import { Availability } from "../../date/domain/date";
 import { Op } from "sequelize";
 
 export class mySQLDateRepository implements DateRepository {

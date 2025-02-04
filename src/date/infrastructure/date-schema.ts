@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Availability } from '../../booking/domain/booking';
+import { Availability } from '../../date/domain/date';
 
 const parseDate = z.preprocess((arg) => {
   if (typeof arg === "string") {
