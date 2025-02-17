@@ -23,4 +23,23 @@ export class ModifyBooking {
       }
     }
   }
+
+  async runWebhook(
+    bookingId: string, paymentStatus: string
+  ): Promise<BookingFields> {
+    try {
+      const booking = 
+      await this.bookingRepository.modifyBookingWebhook(
+        bookingId, paymentStatus
+      );
+      
+      return booking;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Internal server error');
+      }
+    }
+  }
 }

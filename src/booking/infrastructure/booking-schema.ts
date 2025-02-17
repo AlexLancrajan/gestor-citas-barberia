@@ -8,20 +8,20 @@ const parseDate = z.preprocess((arg) => {
   return arg; // Return as is if it's already a Date
 }, z.date());
 
-export const bookingPaymentInputSchema = z.object({
+export const bookingNoPaymentInputSchema = z.object({
   bookingDate: parseDate,
   bookingAnnotations: z.string().optional(),
-  bookingTransactionId: z.string().trim(),
-  bookingPaymentDate: parseDate,
-  bookingPrice: z.number(),
   userId: z.string().trim(),
   siteId: z.number(),
   serviceId: z.number(),
 }).strict();
 
-export const bookingNoPaymentInputSchema = z.object({
+export const bookingPaymentInputSchema = z.object({
   bookingDate: parseDate,
   bookingAnnotations: z.string().optional(),
+  amount: z.number(),
+  currency: z.string().trim(),
+  description: z.string().trim(),
   userId: z.string().trim(),
   siteId: z.number(),
   serviceId: z.number(),
@@ -61,6 +61,7 @@ export const paymentSchema = z.object({
   amount: z.number(),
   currency: z.string().trim(),
   description: z.string().trim(),
+  bookingId: z.string().trim(),
 }).strict();
 
 export const refundPaymentSchema = z.object({
@@ -68,11 +69,11 @@ export const refundPaymentSchema = z.object({
   amount: z.number().optional(),
 }).strict();
 
-
-export type BookingPaymentInputSchema = z.infer<typeof bookingPaymentInputSchema>;
-
 export type BookingNoPaymentInputSchema = 
 z.infer<typeof bookingNoPaymentInputSchema>;
+
+export type BookingPaymentInputSchema = 
+z.infer<typeof bookingPaymentInputSchema>;
 
 export type BookingModificationSchema = z.infer<typeof bookingModificationSchema>;
 

@@ -317,6 +317,11 @@ const mySQLBooking = sequelize.define(
     bookingPrice: {
       type: DataTypes.DECIMAL(5,2)
     },
+    bookingPaymentStatus: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'not paid'
+    },
     userId: {
       type: DataTypes.UUID,
       references: {
@@ -401,40 +406,99 @@ mySQLService.hasMany(mySQLBooking, {
   foreignKey: 'serviceId',
 });
 
-
 /**
  * Junction table to represent the relationship between barbers and services.
  */
+const mySQLBarberService = sequelize.define('BarberService', 
+  {
+    barberId: {
+      type: DataTypes.STRING,
+      references: {
+        model: mySQLBarber,
+        key: 'barberId'
+      }
+    },
+    serviceId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: mySQLService,
+        key: 'serviceId'
+      }
+    }
+  },
+  {
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['barberId', 'serviceId']
+      }
+    ]
+  }
+);
+
 mySQLBarber.belongsToMany(mySQLService,
   {
-    through: 'BarberService',
+    through: mySQLBarberService,
     foreignKey: 'barberId',
-    otherKey: 'serviceId'
-  }
+    otherKey: 'serviceId',
+    timestamps: false
+  }, 
 );
 mySQLService.belongsToMany(mySQLBarber,
   {
-    through: 'BarberService',
+    through: mySQLBarberService,
     foreignKey: 'serviceId',
     otherKey: 'barberId',
+    timestamps: false
   }
 );
 
 /**
  * Junction table to represent the relationship between services and sites.
  */
+const mySQLServiceSite = sequelize.define('ServiceSite', 
+  {
+    serviceId: {
+      type: DataTypes.STRING,
+      references: {
+        model: mySQLService,
+        key: 'serviceId'
+      }
+    },
+    siteId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: mySQLSite,
+        key: 'siteId'
+      }
+    }
+  },
+  {
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['serviceId', 'siteId']
+      }
+    ]
+  }
+);
+
 mySQLService.belongsToMany(mySQLSite,
   {
-    through: 'ServiceSite',
+    through: mySQLServiceSite,
     foreignKey: 'serviceId',
     otherKey: 'siteId',
+    timestamps: false
   }
 );
 mySQLSite.belongsToMany(mySQLService,
   {
-    through: 'ServiceSite',
+    through: mySQLServiceSite,
     foreignKey: 'siteId',
     otherKey: 'serviceId',
+    timestamps: false
   }
 );
 
@@ -444,10 +508,10 @@ export const initSQLModels = async () => {
     if(process.env.NODE_ENV) {
       //await sequelize.drop();
     }
-    await sequelize.sync();
+    await sequelize.sync({alter: true});
   } catch (error) {
     console.error('Error initializing models:', error);
   }
 };
 
-export { mySQLUser, mySQLSite, mySQLBarber, mySQLService, mySQLDate, mySQLBooking };
+export { mySQLUser, mySQLSite, mySQLBarber, mySQLService, mySQLDate, mySQLBooking, mySQLBarberService, mySQLServiceSite };

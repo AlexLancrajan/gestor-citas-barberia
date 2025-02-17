@@ -19,6 +19,9 @@ import { dateRouter } from './date/infrastructure/date-router';
 import { bookingRouter } from './booking/infrastructure/booking-router';
 import cookieParser from 'cookie-parser';
 import options from './ztools/config';
+import { webhookController } from './ztools/stripe-service';
+import barberServiceRouter from './barberService/infrastructure/barberService-router';
+import serviceSiteRouter from './serviceSite/infrastructure/serviceSite-router';
 
 const app = express();
 
@@ -36,6 +39,10 @@ if(process.env.NODE_ENV) {
   }));
 }
 
+//Webhooks
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+app.post('/webhook', express.raw({ type: 'application/json' }), webhookController);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -47,6 +54,8 @@ app.use('/api/barbers', barberRouter);
 app.use('/api/services', serviceRouter);
 app.use('/api/dates', dateRouter);
 app.use('/api/bookings', bookingRouter);
+app.use('/api/barberService', barberServiceRouter);
+app.use('/api/serviceSite', serviceSiteRouter);
 
 //Error Handler.
 

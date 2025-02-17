@@ -12,7 +12,7 @@ const findBooking = new FindBooking(bookingRepository);
 
 const createBooking = new CreateBooking(bookingRepository);
 
-const modifyBooking = new ModifyBooking(bookingRepository);
+export const modifyBooking = new ModifyBooking(bookingRepository);
 
 const deleteBooking = new DeleteBooking(bookingRepository);
 

@@ -4,6 +4,7 @@ import { BookingFields, BookingInputFields } from "../domain/booking";
 import { BookingQueryParams, BookingRepository } from "../domain/booking-repository";
 
 export class mySQLBookingRepository implements BookingRepository {
+
   async getBooking(
     bookingId: string,
     getUser: boolean,
@@ -142,27 +143,6 @@ export class mySQLBookingRepository implements BookingRepository {
     }
   }
 
-  async createBookingWithPayment(
-    bookingInputFields: BookingInputFields
-  ): Promise<BookingFields> {
-    const newBooking = await mySQLBooking.create({
-      bookingDate: bookingInputFields.bookingDate,
-      bookingAnnotations: bookingInputFields.bookingAnnotations,
-      bookingTransactionId: bookingInputFields.bookingTransactionId,
-      bookingPaymentDate: bookingInputFields.bookingPaymentDate,
-      bookingPrice: bookingInputFields.bookingPrice,
-      bookingUserId: bookingInputFields.userId,
-      bookingSiteId: bookingInputFields.siteId,
-      bookingServiceId: bookingInputFields.serviceId
-    });
-
-    if(!newBooking)
-      throw new Error('Could not create the booking.');
-    else {
-      return newBooking.toJSON();
-    }
-  }
-
   async modifyBooking(
     bookingId: string, 
     bookingInputFields: Partial<BookingInputFields>
@@ -176,6 +156,20 @@ export class mySQLBookingRepository implements BookingRepository {
     const modifiedBooking = await mySQLBooking.findByPk(bookingId);
     if(!modifiedBooking) throw new Error('Could not modify the booking. ');
     else return modifiedBooking.toJSON();
+  }
+
+  async modifyBookingWebhook(
+    bookingId: string, 
+    paymentStatus: string): 
+    Promise<BookingFields> {
+      const foundBooking = await mySQLBooking.findByPk(bookingId);
+      if(!foundBooking) throw new Error('Booking not found');
+  
+      await mySQLBooking.update({paymentStatus: paymentStatus}, { where: { bookingId: bookingId }});
+  
+      const modifiedBooking = await mySQLBooking.findByPk(bookingId);
+      if(!modifiedBooking) throw new Error('Could not modify the booking. ');
+      else return modifiedBooking.toJSON();
   }
   
   async deleteBooking(bookingId: string): Promise<number> {

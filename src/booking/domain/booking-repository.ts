@@ -38,13 +38,13 @@ export interface BookingRepository {
     bookingInputFields: BookingInputFields
   ): Promise<BookingFields>;
 
-  createBookingWithPayment(
-    bookingInputFields: BookingInputFields
-  ): Promise<BookingFields>;
-
   modifyBooking(
     bookingId: string,
     bookingInputFields: Partial<BookingInputFields>
+  ): Promise<BookingFields>;
+
+  modifyBookingWebhook(
+    bookingId: string, paymentStatus: string
   ): Promise<BookingFields>;
 
   deleteBooking(bookingId: string): Promise<number>;

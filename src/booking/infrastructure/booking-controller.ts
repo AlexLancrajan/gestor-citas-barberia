@@ -4,7 +4,7 @@ import { FindBooking } from "../application/find-booking";
 import { ModifyBooking } from "../application/modify-booking";
 import { Roles } from "../../user/domain/user";
 import { Availability } from "../../date/domain/date";
-import { BookingPaymentInputSchema, BookingNoPaymentInputSchema, BookingQueryAdminSchema, BookingQueryUserSchema, PaymentSchema, RefundPaymentSchema, BookingModificationSchema } from "./booking-schema";
+import { BookingNoPaymentInputSchema, BookingQueryAdminSchema, BookingQueryUserSchema, PaymentSchema, RefundPaymentSchema, BookingModificationSchema, BookingPaymentInputSchema } from "./booking-schema";
 import { findDate, modifyDate } from "../../date/infrastructure/dependencies";
 import options from "../../ztools/config";
 
@@ -142,28 +142,44 @@ export class BookingController {
   }
 
   async createBookingWithPaymentFunction(req: Request, res: Response) {
-    const paramId = req.params.id;
-    const userId = req.userToken?.userId;
-    if (userId !== paramId) {
-      return res.status(401).json({ error: 'Unauthorized access.' });
-    }
-
     const bookingInputFields = req.body as BookingPaymentInputSchema;
-    try {
-      const date = await findDate.runDateByDate(
-        bookingInputFields.bookingDate, bookingInputFields.siteId);
-      
-      if(!date || date.dateAvailability === Availability.full) {
-        return res.status(400).json({ error: 'Date for this site already occupied.' });
-      } else {
-        date.dateAvailability = Availability.full; 
-        await modifyDate.run(date.dateId, omit(date, 'dateId'));
 
-        const booking = await this.createBooking.runBookingWithPayment(
-          bookingInputFields
-        );
-        return res.json(booking);
+    if(!bookingInputFields) {
+      return res.status(400).json({ error: 'Input not provided.'});
+    }
+    const bookingInputSchema: BookingNoPaymentInputSchema = {
+      bookingDate: bookingInputFields.bookingDate,
+      bookingAnnotations: bookingInputFields.bookingAnnotations,
+      userId: bookingInputFields.userId,
+      siteId: bookingInputFields.siteId,
+      serviceId: bookingInputFields.serviceId
+    };
+
+    try {
+      const booking = 
+      await this.createBooking.runBookingNoPayment(bookingInputSchema);
+
+      const paymentIntent = await createPaymentIntent(
+        bookingInputFields.amount,
+        bookingInputFields.currency,
+        bookingInputFields.description,
+        booking.bookingId
+      );
+      if(!paymentIntent) {
+        return res.status(400).json({ error: 'Could not create the payment intent'});
       }
+
+      const modifiedPaymentFields = {
+        bookingTransactionId: paymentIntent.id,
+        bookingPaymentDate: new Date(paymentIntent.created * 1000),
+        bookingPrice: paymentIntent.amount / 100
+      };
+      await this.modifyBooking.run(booking.bookingId, modifiedPaymentFields);
+      return res.json({
+        paymentIntentId: paymentIntent.id,
+        clientSecret: paymentIntent.client_secret
+      });
+      
     } catch (error: unknown) {
         if (error instanceof Error) {
           return res.status(404).json({ error: error.message });
@@ -189,7 +205,7 @@ export class BookingController {
         bookingId, true, false, false);
 
       if(role !== Roles.admin.toString() && 
-      originalBooking.userId !== userId) {
+        originalBooking.userId !== userId) {
         return res.status(401).json({ error: 'Unauthorized access.' });
       }
 
@@ -198,6 +214,7 @@ export class BookingController {
           return res.status(400).json({ error: 'Time limit surpassed. Can not modify booking'});
         }
       }
+
       const date = await findDate.runDateByDate(
         originalBooking.bookingDate, originalBooking.siteId);
       
@@ -207,13 +224,19 @@ export class BookingController {
       const newDateToCheck = await findDate.runDateByDate(
         bookingInputFields.bookingDate, originalBooking.siteId
       );
-      if(!newDateToCheck || newDateToCheck.dateAvailability === Availability.full) {
+
+      if(!newDateToCheck) {
+        return res.status(400).json({ error: 'Selected date not valid.'});
+      }
+      if(newDateToCheck.dateAvailability === Availability.full) {
         return res.status(400).json({ error: 'Date already occupied'});
       }
-      newDateToCheck.dateAvailability = Availability.full;
-      date.dateAvailability = Availability.available;
-      await modifyDate.run(newDateToCheck.dateId, omit(newDateToCheck, 'dateId'));
-      await modifyDate.run(date.dateId, omit(date, 'dateId'));
+      if(newDateToCheck.dateDate !== originalBooking.bookingDate) {
+        newDateToCheck.dateAvailability = Availability.full;
+        date.dateAvailability = Availability.available;
+        await modifyDate.run(newDateToCheck.dateId, omit(newDateToCheck, 'dateId'));
+        await modifyDate.run(date.dateId, omit(date, 'dateId'));
+      }
 
       const modifiedBooking = await this.modifyBooking.run(
         bookingId, bookingInputFields
@@ -248,14 +271,16 @@ export class BookingController {
 
       if(role !== Roles.admin.toString()) {
         if(!checkTimeRemaining(originalBooking.bookingDate, options.timeLimit)) {
-          return res.json(400).json({ error: 'Time limit surpassed. Can not modify booking'});
+          return res.status(400).json({ error: 'Time limit surpassed. Can not modify booking'});
         }
       }
 
       const date = await findDate.runDateByDate(
         originalBooking.bookingDate, originalBooking.siteId);
-      console.log(date);
-      if(!date) return res.status(400).json({ error: 'Something went wrong...'});
+      if(!date) {
+        return res.status(400).json({ error: 'Something went wrong...'});
+      };
+
       date.dateAvailability = Availability.available;
       await modifyDate.run(date.dateId, omit(date, 'dateId'));
 
@@ -271,18 +296,37 @@ export class BookingController {
   }
 
   async initiatePayment(req: Request, res: Response) {
-    const { amount, currency, description } = req.body as PaymentSchema;
+    const { amount, currency, description, bookingId } = req.body as PaymentSchema;
     if (!amount || !currency || !description) {
       return res.status(400).json({ message: 'Amount, currency, and description are required' });
     }
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
   
     try {
+      const originalBooking = 
+      await this.findBooking.runGetBooking(bookingId, false, false, false);
+
+      if(originalBooking.userId !== req.userToken?.userId) {
+        return res.status(401).json({ error: 'unauthorized access'});
+      }
+
       const paymentIntent = 
-      await createPaymentIntent(amount, currency, description);
+      await createPaymentIntent(amount, currency, description, bookingId);
+      if(!paymentIntent) {
+        return res.status(400).json({ error: 'Could not create the payment intent'});
+      }
+
+      const modifiedBooking = {
+        bookingTransactionId: paymentIntent.id,
+        bookingPaymentDate: new Date(paymentIntent.created * 1000),
+        bookingPrice: paymentIntent.amount / 100,
+      };
+      await this.modifyBooking.run(bookingId, modifiedBooking);
+      
       return res.json({
-        bookingPaymentId: paymentIntent.id,
-        bookingPaymentDate: new Date(paymentIntent.created),
-        bookingPrice: paymentIntent.amount,
+        paymentIntentId: paymentIntent.id,
         clientSecret: paymentIntent.client_secret
       });
     } catch (error: unknown) {
@@ -313,20 +357,45 @@ export class BookingController {
   async cancelPaymentFunction(req: Request, res: Response) {
     const bookingId = req.params.bookingId;
     const { paymentIntentId } = req.body as RefundPaymentSchema;
+    
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'PaymentIntent ID is required' });
     }
 
+    const paymentIntent = await getPaymentIntent(paymentIntentId);
+    if (!paymentIntent) {
+      return res.status(404).json({ error: 'PaymentIntent not found' });
+    }
+
+    if (paymentIntent.metadata.bookingId !== bookingId) {
+      return res.status(403).json({ error: 'Unauthorized payment modification' });
+    }
+
+
     const booking = await this.findBooking.runGetBooking(
       bookingId, false, false, false
     );
-    if(!booking) return res.json(404).json({ error: 'Booking not found'});
+    if(!booking) return res.status(404).json({ error: 'Booking not found'});
 
-    if(!checkTimeRemaining(booking.bookingDate, options.timeLimit)) {
-      return res.json(400).json({ error: 'Time limit surpassed.'});
+    if(booking.userId !== req.userToken?.userId && req.userToken?.role !== Roles.admin) {
+      return res.status(401).json({ error: 'unauthorized access'});
     }
+    if(!checkTimeRemaining(booking.bookingDate, options.timeLimit) && req.userToken?.role !== Roles.admin) {
+      return res.status(400).json({ error: 'Time limit surpassed.'});
+    }
+    if(booking.bookingPaymentStatus === 'paid') {
+      return res.status(400).json({ error: 'Cannot cancel paid booking, use refund instead.'});
+    }
+    if(booking.bookingPaymentStatus === 'refunded') {
+      return res.status(400).json({ error: 'Payment already refunded.'});
+    }
+
     try {
       const paymentIntent = await cancelPayment(paymentIntentId);
+      if(!paymentIntent) {
+        return res.status(404).json({ error: 'Could not find the payment intent.'});
+      }
+
       return res.json({
         success: true,
         message: 'Payment cancelled successfully',
@@ -346,18 +415,38 @@ export class BookingController {
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'PaymentIntent ID is required' });
     }
+
+    const paymentIntent = await getPaymentIntent(paymentIntentId);
+    if (!paymentIntent) {
+      return res.status(404).json({ error: 'PaymentIntent not found' });
+    }
+    
+    if (paymentIntent.metadata.bookingId !== bookingId) {
+      return res.status(403).json({ error: 'Unauthorized payment modification' });
+    }
   
     const booking = await this.findBooking.runGetBooking(
       bookingId, false, false, false
     );
-    if(!booking) return res.json(404).json({ error: 'Booking not found'});
+    if(!booking) return res.status(404).json({ error: 'Booking not found'});
 
     if(!checkTimeRemaining(booking.bookingDate, options.timeLimit)) {
-      return res.json(400).json({ error: 'Time limit surpassed.'});
+      return res.status(400).json({ error: 'Time limit surpassed.'});
     }
+    if(booking.bookingPaymentStatus === 'not paid') {
+      return res.status(400).json({ error: 'Cannot refund a not paid booking, use cancel instead.'});
+    }
+    if(booking.bookingPaymentStatus === 'canceled') {
+      return res.status(400).json({ error: 'Payment already canceled.'});
+    }
+
 
     try {
       const refund = await createRefunds(paymentIntentId, amount);
+      if(!refund) {
+        return res.status(400).json({ error: 'Could not create the refund'});
+      };
+
       return res.json({
         success: true,
         message: 'Payment refunded successfully',
@@ -370,4 +459,5 @@ export class BookingController {
         return res.status(500).json({ message: 'Internal server error' });
     }
   }
+
 }

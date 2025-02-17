@@ -15,7 +15,8 @@ interface Options {
   GOOGLE_CLIENT_ID: string,
   GOOGLE_CLIENT_SECRET: string,
   GOOGLE_CALLBACK_URL: string,
-  STRIPE_SECRET_KEY: string
+  STRIPE_SECRET_KEY: string,
+  STRIPE_WEBHOOK_SECRET: string
 };
 
 const options: Options = {
@@ -33,6 +34,7 @@ const options: Options = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? process.env.GOOGLE_CLIENT_SECRET: "",
   GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL ? process.env.GOOGLE_CALLBACK_URL : "",
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY : "",
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ? process.env.STRIPE_WEBHOOK_SECRET: ""
 };
 
 export default options;

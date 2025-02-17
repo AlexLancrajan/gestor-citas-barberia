@@ -24,24 +24,4 @@ export class CreateBooking {
       }
     }
   }
-
-  async runBookingWithPayment(
-    bookingInputFields: BookingInputFields
-  ): Promise<BookingFields> {
-    try {
-      const booking = 
-      await this.bookingRepository.createBookingWithPayment(bookingInputFields);
-
-      if(!booking) 
-        throw new Error('Booking not found.');
-      else 
-        return booking;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error('Internal server error');
-      }
-    }
-  }
 }

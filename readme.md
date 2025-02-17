@@ -41,9 +41,11 @@ El directorio del proyecto se organiza de la siguiente manera:
 |   |       |-- barber-router.ts
 |   |       |-- barber-schema.ts
 |   |       `-- dependencies.ts
+|   |-- barberService
 |   |-- booking
 |   |-- date
 |   |-- service
+|   |-- serviceSite
 |   |-- site
 |   |-- user
 |   |-- zsign-up-strategies
