@@ -1,6 +1,6 @@
 {
   "name": "gestor-citas-barberia",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "app.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsnd --respawn --clear src/app.ts",

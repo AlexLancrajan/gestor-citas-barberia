@@ -97,7 +97,7 @@ export class UserController {
           sameSite: process.env.NODE_ENV ? 'none' : 'strict', 
           secure: process.env.NODE_ENV ? false : true,
           maxAge: 24 * 60 * 60 * 1000
-        }).json({ status: 'user logged' });
+        }).json({ status: 'user logged', role: user.role });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
