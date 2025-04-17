@@ -19,7 +19,8 @@ export interface DateFields extends DateInputFields{
   siteRef?: SiteFields,
 }
 
+/**Contains information about open and close time for a particular site. */
 export interface ScheduleFields {
-  initDate: Date,
-  endDate: Date
+  openTime: Date,
+  closeTime: Date
 }

@@ -1,13 +1,9 @@
-/**
- * The following operation are supported in the site domain are:
- * 1. Find site or sites.
- * 2. Create site.
- * 3. Modify site.
- * 4. Delete site.
- */
-
 import { SiteFields, SiteInputFields } from "./site";
 
+/**It contains all the the abstract methods that operates in the site domain. 
+ * 
+ * It requires admin privileges.
+*/
 export interface SiteRepository {
   getSite(id: number): Promise<SiteFields | null>;
 

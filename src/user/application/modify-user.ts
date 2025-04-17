@@ -1,15 +1,11 @@
-/**
- * Modification actions class. It contains all the modification operations
- * supported on user. It uses the user repository.
-*/
-
 import { UserNoHashField, UserRegModFields } from "../domain/user";
 import { UserRepository } from "../domain/user-repository";
 
-
+/**It contains the rules and logic to perform the User modification operations. */
 export class ModifyUser {
   constructor(private readonly userRepository: UserRepository) { }
 
+  /**If the operation could not be completed, it returns an error. */
   async run(userId: string, modifiedUser: Partial<UserRegModFields>): 
   Promise<UserNoHashField> {
     try {

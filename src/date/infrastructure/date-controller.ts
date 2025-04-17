@@ -67,11 +67,11 @@ export class DateController {
   }
 
   async getOccupationFunction(req: Request, res: Response) {
-    const { siteId, initDate, endDate} = req.body as OccupationDatesSchema;
+    const { siteId, openTime, closeTime} = req.body as OccupationDatesSchema;
 
     try {
       const availability = await this.findDate.runOccupation(
-        siteId, initDate, endDate
+        siteId, openTime, closeTime
       );
       return res.json({availability: availability});
     } catch (error) {

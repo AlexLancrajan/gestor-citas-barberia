@@ -116,15 +116,15 @@ export class mySQLDateRepository implements DateRepository {
 
   async getOccupation(
     siteId: number,
-    initDate: Date,
-    endDate: Date
+    openTime: Date,
+    closeTime: Date
   ): Promise<Availability | null> {
     const dailyDates = await mySQLDate.findAll(
       {
         where: {
           siteId: siteId,
           dateDate: {
-            [Op.between]: [initDate, endDate]
+            [Op.between]: [openTime, closeTime]
           }
         }
       }
@@ -168,21 +168,21 @@ export class mySQLDateRepository implements DateRepository {
     
     const result = 
     schedule.find(
-      day => day.initDate.getDay() === currentDay.getDay()
+      day => day.openTime.getDay() === currentDay.getDay()
     );
 
     if(result) {
       const initSchedule = new Date(currentDay);
       initSchedule
       .setHours(
-        result.initDate.getHours(), 
-        result.initDate.getMinutes(), 0, 0);
+        result.openTime.getHours(), 
+        result.openTime.getMinutes(), 0, 0);
 
       const endSchedule = new Date(currentDay);
       endSchedule
       .setHours(
-        result.endDate.getHours(), 
-        result.endDate.getMinutes(), 0, 0);
+        result.closeTime.getHours(), 
+        result.closeTime.getMinutes(), 0, 0);
           
       const newDates = generateDates(
         initSchedule, endSchedule, minutes
@@ -205,13 +205,13 @@ export class mySQLDateRepository implements DateRepository {
   }
 
   async createAutomaticDates(
-    initDate: Date, 
+    openTime: Date, 
     months: number, 
     schedule: ScheduleFields[], 
     minutes: number, 
     siteId: number
   ): Promise<DateFields[]> {
-    const generatedDates = generateNMonths(initDate, months, schedule, minutes);
+    const generatedDates = generateNMonths(openTime, months, schedule, minutes);
     const dates = generatedDates.map(date => 
       ({
         dateDate: date,

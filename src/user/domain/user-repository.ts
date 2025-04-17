@@ -1,21 +1,15 @@
-/**
- * Definition of the user repository including all the action that could be
- * performed to user concept.
- */
-
 import { UserRegModFields, Roles, UserNoHashField, UserFields } from "./user";
 
-
+/**
+ * This is the abstract repository that contains all the operation that could be performed to the User entity.
+ */
 export interface UserRepository {
-  /**
-  * Find operations.
-  */
-  //For all roles.
+
   getById(userId: string): Promise<UserNoHashField | null>;
 
   getByUsername(username: string): Promise<UserFields | null>;
 
-  //For admins only.
+  /**It needs admin privileges. */
   getByRole(role: Roles, page: number, pageSize: number): 
   Promise<UserNoHashField[] | null>;
 
@@ -24,18 +18,9 @@ export interface UserRepository {
 
   getAllUsers(page: number, pageSize: number): Promise<UserNoHashField[] | null>;
 
-  /**
-  * Create operations.
-  */
   createUser(user: UserRegModFields): Promise<UserNoHashField | null>;
 
-  /**
-  * Delete operations.
-  */
   deleteUser(userId: string): Promise<number>;
 
-  /**
-  * Modification operations.
-  */
   modifyUser(userId: string, modifiedUser: Partial<UserRegModFields>): Promise<UserNoHashField>
 }

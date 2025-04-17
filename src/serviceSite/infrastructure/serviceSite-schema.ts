@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const serviceSiteSchema = z.object({
-  serviceId: z.number().optional(),
-  siteId: z.number().optional(),
+  serviceId: z.number({ message: "Service Id format error." }).optional(),
+  siteId: z.number({ message: "Site Id format error." }).optional(),
 }).strict();
 
 export const createServiceSiteSchema = z.object({
-  serviceId: z.number(),
-  siteId: z.number(),
+  serviceId: z.number({ message: "Service Id format error." }),
+  siteId: z.number({ message: "Site Id format error." }),
 }).strict();
 
 export type ServiceSiteSchema = z.infer<typeof serviceSiteSchema>;

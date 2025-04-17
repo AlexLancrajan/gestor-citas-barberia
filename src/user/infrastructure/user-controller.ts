@@ -1,12 +1,7 @@
-/**
- * In this version the capabilities for the controller are: Register User (internally), login user, CRUD operations on users and refresh token logic implemented as cookies.
- * TO-DO: Implement google sign-up capability.
-*/
-
 import { DeleteUser } from "../application/delete-user";
 import { FindUser } from "../application/find-user";
 import { RegisterUser } from "../application/register-user";
-import { Roles, UserFields, UserForToken, UserRegModFields } from "../domain/user";
+import { Roles, UserForToken, UserRegModFields } from "../domain/user";
 import options from "../../ztools/config";
 import { ModifyUser } from "../application/modify-user";
 
@@ -14,8 +9,11 @@ import { Request, Response } from "express";
 import { omit } from 'lodash';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UserGoogleRegistrationSchema, UserLoginSchema, UserModificationsSchema, UserRegistrationSchema } from "./user-schema";
+import { UserLoginSchema, UserModificationsSchema, UserRegistrationSchema } from "./user-schema";
 
+/**
+ * It defines all the router functionalities.
+ */
 export class UserController {
   constructor(
     private readonly registerUser: RegisterUser,
@@ -23,28 +21,6 @@ export class UserController {
     private readonly deleteUser: DeleteUser,
     private readonly modifyUser: ModifyUser
   ) { }
-
-  async registerGoogleUserFunction(req: Request, res: Response) {
-    const body = req.body as UserGoogleRegistrationSchema;
-
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(body.password, saltRounds);
-    const noPassBody: Omit<UserGoogleRegistrationSchema, 'password'> = 
-    omit(body, 'password');
-
-    const newUser: UserFields = 
-    {passwordHash: passwordHash, ...noPassBody, missingTrack: 0};
-
-    try {
-      const registeredUser = await this.registerUser.run(newUser);
-      return res.json(registeredUser);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(400).json({ error: error.message });
-      }
-      return res.status(500).json({ error: 'internal server error' });
-    }
-  }
 
   async registerUserFunction(req: Request, res: Response) {
     const body: UserRegistrationSchema = req.body as UserRegistrationSchema;

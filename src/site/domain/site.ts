@@ -1,9 +1,6 @@
 /**
- * Site contains the following fields:
- * 1. SiteInputFields: For creation and modification.
- * 2. SiteFields: For querying, modifying and deleting sites.
+ * Fields: siteName, siteDirection, siteSchedule, sitePhone, siteDescription.
  */
-
 export interface SiteInputFields {
   siteName: string,
   siteDirection: string,
@@ -12,6 +9,10 @@ export interface SiteInputFields {
   siteDescription: string
 }
 
+/**It contains all the site fields stored in the database.
+ * 
+ * Fields: SiteInputFields + siteId.
+ */
 export interface SiteFields extends SiteInputFields{
   siteId: number,
 }

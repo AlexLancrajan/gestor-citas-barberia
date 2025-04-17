@@ -1,15 +1,10 @@
-/**
- * Delete actions class. It supports the deleted operations supported in
- * User. It uses the user repository.
-*/
-
 import { UserRepository } from "../domain/user-repository";
 
+/** */
 export class DeleteUser {
-
-  //User repository is used to perform the actions.
   constructor(private readonly userRepository: UserRepository) { }
 
+  /**If the user is already deleted it returns an error. */
   async run(userId: string): Promise<number> {
     const deletedUser = await this.userRepository.deleteUser(userId);
 

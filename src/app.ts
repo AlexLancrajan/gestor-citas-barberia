@@ -1,6 +1,8 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import options from './ztools/config';
 
 //Create and initialize database.
 import { initSQLModels } from './mySQL';
@@ -10,15 +12,13 @@ void (async () => {
 }) ();
 
 //Routes for the application.
+import configRouter from './ztools/config-router';
 import { userRouter } from './user/infrastructure/user-router';
-// import { googleRouter } from './zsign-up-strategies/google-sign-up'; Due to the nature of the application I build this is not necessay.
 import { siteRouter } from './site/infrastructure/site-router';
 import { barberRouter } from './barber/infrastructure/barber-router';
 import { serviceRouter } from './service/infrastructure/service-router';
 import { dateRouter } from './date/infrastructure/date-router';
 import { bookingRouter } from './booking/infrastructure/booking-router';
-import cookieParser from 'cookie-parser';
-import options from './ztools/config';
 import { webhookController } from './ztools/stripe-service';
 import barberServiceRouter from './barberService/infrastructure/barberService-router';
 import serviceSiteRouter from './serviceSite/infrastructure/serviceSite-router';
@@ -46,9 +46,11 @@ app.post('/webhook', express.raw({ type: 'application/json' }), webhookControlle
 app.use(express.json());
 app.use(cookieParser());
 
+//Config time limit
+app.use('/api/config', configRouter);
+
 //Routes.
 app.use('/api/users', userRouter);
-// app.use('/api/google', googleRouter); Not needed therefore.
 app.use('/api/sites', siteRouter);
 app.use('/api/barbers', barberRouter);
 app.use('/api/services', serviceRouter);

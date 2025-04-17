@@ -4,54 +4,68 @@ import { Availability } from '../../date/domain/date';
 const parseDate = z.preprocess((arg) => {
   if (typeof arg === "string") {
     const date = new Date(arg);
-    return date; // Convert ISO string to Date
+    return isNaN(date.getTime()) ? arg : date;
   }
-  return arg; // Return as is if it's already a Date
-}, z.date());
+  return arg;
+}, z.any())
+.refine(
+    (val) => val instanceof Date && !isNaN(val.getTime()),
+    (val) => (
+      {
+        message: `Invalid date: ${JSON.stringify(val)}`
+      }
+    )
+)
+.transform((val) => val as Date);
 
 export const dateInputSchema = z.array(
   z.object({
     dateDate: parseDate,
     dateAvailability: z.nativeEnum(Availability),
-    siteId: z.number(),
+    siteId: z.number({ message: "Site id format error." }),
   }).strict()
 );
 
 export const dateNoAvailabilitySchema = z.object({
   dateDate: parseDate,
-  siteId: z.number(),
+  siteId: z.number({ message: "Site id format error." }),
 }).strict();
 
 export const dateModificationSchema = z.object({
   dateDate: parseDate.optional(),
   dateAvailability: z.nativeEnum(Availability).optional(),
-  siteId: z.number().optional(),
+  siteId: z.number({ message: "Site id format error. "}).optional(),
 }).strict();
 
 export const occupationDatesSchema = z.object({
-  siteId: z.number(),
-  initDate: parseDate,
-  endDate: parseDate,
+  siteId: z.number({ message: "Site id format error." }),
+  openTime: parseDate,
+  closeTime: parseDate,
 }).strict();
 
 export const dailyDatesSchema = z.object({
-  siteId: z.number(),
+  siteId: z.number({ message: "Site id format error." }),
   schedule: z.array(z.object({
-    initDate: parseDate,
-    endDate: parseDate,
+    openTime: parseDate,
+    closeTime: parseDate,
   })),
-  minutes: z.number()
+  minutes: z.number({ message: "minutes format error." })
+  .gt(0, { message: "Should add more than 0 minutes."})
 }).strict();
 
 export const automaticDatesSchema = z.object({
   initDate: parseDate.optional(),
-  months: z.number().optional(),
+  months: z.number({ message: "Months format error."})
+    .gt(0, { message: "It should be at least 1 month." })
+    .optional(),
   schedule: z.array(z.object({
-    initDate: parseDate,
-    endDate: parseDate,
+    openTime: parseDate,
+    closeTime: parseDate,
   })),
-  minutes: z.number().optional(),
-  siteId: z.number(),
+  minutes: z.number({ message: "minutes format error." })
+    .gt(0, { message: "It should be added more than 0 minutes."})
+    .optional(),
+  siteId: z.number({ message: "Site id format error." }),
 }).strict();
 
 export type DateInputSchema = z.infer<typeof dateInputSchema>;

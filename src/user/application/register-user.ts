@@ -1,16 +1,12 @@
-/**
- * Register actions class. It supports all the operations required to register
- * an user. 
- * It uses the repository concept to perform this actions.
- */
-
 import { UserRegModFields, UserNoHashField } from "../domain/user";
 import { UserRepository } from "../domain/user-repository";
 
+/**It contains the rules and logic to perform the user registration opertaions. */
 export class RegisterUser {
 
   constructor(private readonly userRepository: UserRepository) { }
 
+  /**If the process fail it returns User: username could not be created error. */
   async run(user: UserRegModFields): Promise<UserNoHashField> {
     const createdUser = await this.userRepository.createUser(user);
 
