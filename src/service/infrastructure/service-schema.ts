@@ -20,22 +20,8 @@ export const serviceModificationSchema = z.object({
   serviceType: z.string({ message: "Service Type format error." }).trim()
     .min(1, { message: "Service type must not be empty"})
     .optional(),
-  servicePrice: z.preprocess((arg) => {
-    if (typeof arg === "string") {
-      const date = new Date(arg);
-      return isNaN(date.getTime()) ? arg : date;
-    }
-    return arg;
-  }, z.any())
-  .refine(
-      (val) => val instanceof Date && !isNaN(val.getTime()),
-      (val) => (
-        {
-          message: `Invalid date: ${JSON.stringify(val)}`
-        }
-      )
-  )
-  .transform((val) => val as Date),
+  servicePrice: z.number({ message: "Error on service price format"})
+    .gte(0, { message: "Service price must be a positive number. "}),
   serviceDescription: z.string().trim()
     .min(1, { message: "Service type must not be empty"})
     .optional(),
